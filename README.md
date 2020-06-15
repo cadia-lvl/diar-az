@@ -21,7 +21,7 @@ The corpus has the following:
 
 You do not need to concern yourself with the wav folder for this project. Assume you'll be working on directory above the corpus. 
 
-I’ve created bash and python files using gawk, sed, sort -u, sox I believe. Try to only use tools which already exist, don't require downloading new packages. Create the appropriate folders. Unvalidated & validated
+I’ve created bash and python files using gawk, sed, sort -u, sox I believe. Create the appropriate folders. 
 
 Do not commit any files or information that is specific to this corpus, e.g. names, the corpus README.
 
