@@ -30,7 +30,6 @@ Do not commit any files or information that is specific to this corpus, e.g. nam
 3. Remove [] stuff (foreign, noise, music) from rttm files and srt segments. For rttm file that means remove the line or remove the [] portion of a line with speaker-ids as [foreign]+15. For srt segments that means only remove the segments which don't have any speech. 
 4. Rename the rttm/json/srt files themselves to just the audio filename. 
 6. Also include the command to call [create_segments_and_text.py](https://github.com/cadia-lvl/broadcast_data_prep/blob/master/ruv/create_segments_and_text.py). It might be difficult due to where the resulting files are created. If so, then will need to generalize the python file. Do this and create a pull-request.
-5. Split each week’s files into 70/15/15% with the 70% portion holding the extra audio files.
 7. Generate text file with the updated corpus numbers in the corpus readme. If know how to, then also autoreplaces the values in the readme. 
 
 ### Other tasks
@@ -44,6 +43,7 @@ Do not commit any files or information that is specific to this corpus, e.g. nam
 ## Possible tasks if the above are done
 If have kaldi setup the run local/make_ruvdi.sh, fix_data_dir & utils/validate_data_dir.sh
 
+5. Split each week’s files into 70/15/15% with the 70% portion holding the extra audio files.
 1. Run the kaldi recipe and split_rttm (I'll need to supply this file). Add them to the callhome_rttm directory.
 26. Run the kaldi recipe (kaldi-speaker-diarization/v4) to evaluate the new DER% with the increased data.
 10. Create a script which creates new segments based on 2-6 speaker turns which looks like the current corpus but with those new audio files. 
