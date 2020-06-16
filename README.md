@@ -26,10 +26,10 @@ I’ve created bash and python files using gawk, sed, sort -u, sox I believe. Cr
 Do not commit any files or information that is specific to this corpus, e.g. names, the corpus README.
 
 ## Tasks
-1. Add audio filenames to rttm files, as the second field. See [the template file in kaldi-speaker-diarization/master/templates.md](https://github.com/cadia-lvl/kaldi-speaker-diarization/master/templates.md) for an example. DO NOT put angle brackets arounnd the recording-id/audio filenames. 
+1. Add audio filenames to rttm files, as the second field. See [the template file in kaldi-speaker-diarization/master/templates.md](https://github.com/cadia-lvl/kaldi-speaker-diarization/blob/master/templates.md) for an example. DO NOT put angle brackets arounnd the recording-id/audio filenames. 
 3. Remove [] stuff (foreign, noise, music) from rttm files and srt segments. For rttm file that means remove the line or remove the [] portion of a line with speaker-ids as [foreign]+15. For srt segments that means only remove the segments which don't have any speech. 
 4. Rename the rttm/json/srt files themselves to just the audio filename. 
-6. Also include the command to call [create_segments_and_text.py](https://github.com/cadia-lvl/broadcast_data_prep/master/ruv/create_segments_and_text.py). It might be difficult due to where the resulting files are created. If so, then will need to generalize the python file. Do this and create a pull-request.
+6. Also include the command to call [create_segments_and_text.py](https://github.com/cadia-lvl/broadcast_data_prep/blob/master/ruv/create_segments_and_text.py). It might be difficult due to where the resulting files are created. If so, then will need to generalize the python file. Do this and create a pull-request.
 5. Split each week’s files into 70/15/15% with the 70% portion holding the extra audio files.
 7. Generate text file with the updated corpus numbers in the corpus readme. If know how to, then also autoreplaces the values in the readme. 
 
