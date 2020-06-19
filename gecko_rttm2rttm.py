@@ -1,15 +1,17 @@
 # Author: Reykjavik University (Judy Fong <judyfong@ru.is>)
 # Description: Convert gecko rttm files to also have recordingids in the first
 # <NA>
-
+    
 def main(gecko_rttm):
     import os
     base = os.path.basename(gecko_rttm)
     (filename, ext) = os.path.splitext(base.replace("_",""))
+    audiofilename = filename.split("-")[1][:9]
+    print(audiofilename)
     with open(gecko_rttm , 'r') as gecko_file, open('rttm/'+ base, 'w') \
         as rttm_file:
         for line in gecko_file:
-            print(line.rstrip().replace('<NA>', filename, 1), end='\n',
+            print(line.rstrip().replace('<NA>', filename, 1).replace('<NA>', audiofilename, 1), end='\n',
             file=rttm_file)
     print("The recording ids have been added to {}.".format(base))
 
