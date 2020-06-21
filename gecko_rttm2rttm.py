@@ -5,9 +5,9 @@
 def main(gecko_rttm):
     import os
     base = os.path.basename(gecko_rttm)
+    (audiofilename, ext) = os.path.splitext(base.split("_")[0].split("-")[1])
     (filename, ext) = os.path.splitext(base.replace("_",""))
-    audiofilename = filename.split("-")[1][:9]
-    print(audiofilename)
+
     with open(gecko_rttm , 'r') as gecko_file, open('rttm/'+ base, 'w') \
         as rttm_file:
         for line in gecko_file:
