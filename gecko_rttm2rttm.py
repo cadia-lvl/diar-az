@@ -34,12 +34,10 @@ def is_srt_tmstmp(tmstamp):
                     and tmstamp[9:].isnumeric() ):
             return True
     return False
-    
+
 #checks if there is some speech in the rttm file
 def is_speech_rttm(srt_line, rttm_lines):
     ln_ind = 0
-    #For loop starts at ln_ind - ln_ind stops at srt range max - 
-    # return the index of rttm_lines where last stopped and begin on that position next time (so we dont have to go through all the lines n*n times!)
     srt_range = tmstmp_scnds(srt_line)
     for rttm_line in rttm_lines:
         rttm_bgn_tm = rttm_line.split(' ')[3]
