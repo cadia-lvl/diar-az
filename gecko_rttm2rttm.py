@@ -58,19 +58,30 @@ def tmstmp_scnds(line):
             return [ cnvrt_hh_mm_sec(fstcol), cnvrt_hh_mm_sec(lstcol) ]
       return []
 
+#Gets the audio filename
+def get_audio_filename(filename):
+    if ("_" in filename and "-" in filename):
+        (audiofilename, ext) = os.path.splitext(filename.split("_")[0].split("-")[1])
+        return audiofilename
+    elif ("-" in filename):
+        (audiofilename, ext) = os.path.splitext(filename.split("-")[1])
+        return audiofilename
+    else:
+        return filename
+
 def rename_json_rttm_srt(os):
     json_files = os.listdir('json')
     rttm_files = os.listdir('rttm')
-    for file in json_files:
-        (audiofilename, ext) = os.path.splitext(file.split("_")[0].split("-")[1])
-        os.rename("json/"+file, "json/"+audiofilename)
-        print("json file" + file + "renamed to " + audiofilename)
+    for filename in json_files:
+        audiofilename = get_audio_filename(filename)
+        os.rename("json/"+filename, "json/"+audiofilename)
+        print("json file" + filename + "renamed to " + audiofilename)
 
 def main(gecko_rttm, gecko_srt):
     import os
     base = os.path.basename(gecko_rttm)
     rename_json_rttm_srt(os)
-    (audiofilename, ext) = os.path.splitext(base.split("_")[0].split("-")[1])
+    audiofilename = get_audio_filename(gecko_rttm)
     (filename, ext) = os.path.splitext(base.replace("_",""))
     srt_ranges = []
     rttm_lines = []
