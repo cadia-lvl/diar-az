@@ -59,29 +59,42 @@ def tmstmp_scnds(line):
       return []
 
 #Gets the audio filename
-def get_audio_filename(filename):
+def get_audio_filename(filename, os):
+    (filename, ext) = os.path.splitext(filename)
     if ("_" in filename and "-" in filename):
-        (audiofilename, ext) = os.path.splitext(filename.split("_")[0].split("-")[1])
-        return audiofilename
+        audiofilename = filename.split("_")[0].split("-")[1]
+        return audiofilename+ext
     elif ("-" in filename):
-        (audiofilename, ext) = os.path.splitext(filename.split("-")[1])
-        return audiofilename
+        audiofilename = filename.split("-")[1]
+        return audiofilename+ext
     else:
         return filename
 
-def rename_json_rttm_srt(os):
+def rnm_json_rttm_srt(os):
     json_files = os.listdir('json')
     rttm_files = os.listdir('rttm')
+    srt_files = os.listdir('segments')
+    
     for filename in json_files:
-        audiofilename = get_audio_filename(filename)
+        audiofilename = get_audio_filename(filename, os)
         os.rename("json/"+filename, "json/"+audiofilename)
-        print("json file" + filename + "renamed to " + audiofilename)
+        print("The json file " + filename + " has been renamed to " + audiofilename)
+
+    for filename in rttm_files:
+        audiofilename = get_audio_filename(filename, os)
+        os.rename("rttm/"+filename, "rttm/"+audiofilename)
+        print("The rttm file " + filename + " has been renamed to " +audiofilename)
+
+    for filename in srt_files:
+        audiofilename = get_audio_filename(filename, os)
+        os.rename("segments/"+filename, "segments/"+audiofilename)
+        print("The srt file " + filename + " has been renamed to " + audiofilename)
+
 
 def main(gecko_rttm, gecko_srt):
     import os
     base = os.path.basename(gecko_rttm)
-    rename_json_rttm_srt(os)
-    audiofilename = get_audio_filename(gecko_rttm)
+    audiofilename = get_audio_filename(gecko_rttm, os)
     (filename, ext) = os.path.splitext(base.replace("_",""))
     srt_ranges = []
     rttm_lines = []
@@ -99,6 +112,7 @@ def main(gecko_rttm, gecko_srt):
             if(tmstmp_scnds(line) != []):
                 if not is_speech_rttm(line, rttm_lines):
                      print(line, end='\n', file=srt_file)
+    rnm_json_rttm_srt(os)
     print("The recording ids have been added to {}.".format(base))
 
 if __name__ == '__main__':

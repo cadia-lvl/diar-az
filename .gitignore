@@ -1,6 +1,7 @@
 /rttm/
 /segments/
 /json/
+/wav/
 *.srt
 *.rttm
 *.json
