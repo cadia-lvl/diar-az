@@ -68,7 +68,7 @@ def get_audio_filename(filename, os):
         audiofilename = filename.split("-")[1]
         return audiofilename+ext
     else:
-        return filename
+        return filename+ext
 
 def rnm_json_rttm_srt(os):
     json_files = os.listdir('json')
