@@ -1,1 +1,6 @@
 /rttm/
+/segments/
+/json/
+*.srt
+*.rttm
+*.json

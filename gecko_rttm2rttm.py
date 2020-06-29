@@ -34,14 +34,15 @@ def is_srt_tmstmp(tmstamp):
                     and tmstamp[9:].isnumeric() ):
             return True
     return False
-
+    
 #checks if there is some speech in the rttm file
 def is_speech_rttm(srt_line, rttm_lines):
-    ln_ind = 0
+    ln_ind = 0 
     srt_range = tmstmp_scnds(srt_line)
     for rttm_line in rttm_lines:
         rttm_bgn_tm = rttm_line.split(' ')[3]
         rttm_spkr_else = rttm_line.split(' ')[7]
+
         if( Decimal(rttm_bgn_tm) >= srt_range[0] and Decimal(rttm_bgn_tm) < Decimal(str(srt_range[1])) ):
             if(rttm_spkr_else.isnumeric()):
                 return False
@@ -57,14 +58,22 @@ def tmstmp_scnds(line):
             return [ cnvrt_hh_mm_sec(fstcol), cnvrt_hh_mm_sec(lstcol) ]
       return []
 
+def rename_json_rttm_srt(os):
+    json_files = os.listdir('json')
+    rttm_files = os.listdir('rttm')
+    for file in json_files:
+        (audiofilename, ext) = os.path.splitext(file.split("_")[0].split("-")[1])
+        os.rename("json/"+file, "json/"+audiofilename)
+        print("json file" + file + "renamed to " + audiofilename)
+
 def main(gecko_rttm, gecko_srt):
     import os
     base = os.path.basename(gecko_rttm)
+    rename_json_rttm_srt(os)
     (audiofilename, ext) = os.path.splitext(base.split("_")[0].split("-")[1])
     (filename, ext) = os.path.splitext(base.replace("_",""))
     srt_ranges = []
     rttm_lines = []
-    i = -1
     with open(gecko_rttm , 'r') as gecko_file, open('rttm/'+ base, 'w') \
         as rttm_file:
         for line in gecko_file:
