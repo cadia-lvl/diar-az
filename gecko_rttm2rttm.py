@@ -33,14 +33,14 @@ def is_srt_tmstmp(tmstamp):
     
 #checks if there is some speech in the rttm file at specific segment
 def is_speech_rttm(srt_line, rttm_lines):
-    ln_ind = 0 
-    srt_range = tmstmp_scnds(srt_line)
-    for rttm_line in rttm_lines:
-        rttm_bgn_tm = rttm_line.split(' ')[3]
-        rttm_spkr_else = rttm_line.split(' ')[7]
-        if( Decimal(rttm_bgn_tm) >= srt_range[0] and Decimal(rttm_bgn_tm) < Decimal(str(srt_range[1])) ):
-            if(rttm_spkr_else.isnumeric()):
-                return False
+    if(tmstmp_scnds(srt_line) != []):
+        srt_range = tmstmp_scnds(srt_line)
+        for rttm_line in rttm_lines:
+            rttm_bgn_tm = rttm_line.split(' ')[3]
+            rttm_spkr_else = rttm_line.split(' ')[7]
+            if( Decimal(rttm_bgn_tm) >= srt_range[0] and Decimal(rttm_bgn_tm) < Decimal(str(srt_range[1])) ):
+                if(rttm_spkr_else.isnumeric()):
+                    return False
     return True
 #Returns the timestamps in seconds to compare the srt file to the rttm file to remove the correct segments with no speech in it.
 def tmstmp_scnds(line):
@@ -65,6 +65,7 @@ def get_audio_filename(filename, os):
     else:
         return filename+ext
 
+#Renames Json, Rttm and srt files
 def rnm_json_rttm_srt(os):
     json_files = os.listdir('json')
     rttm_files = os.listdir('rttm')
@@ -85,43 +86,67 @@ def rnm_json_rttm_srt(os):
         os.rename("segments/"+filename, "segments/"+audiofilename)
         print("The srt file " + filename + " has been renamed to " + audiofilename)
 
-
 def main(gecko_rttm, gecko_srt):
     import os
-    base = os.path.basename(gecko_rttm)
-    audiofilename = get_audio_filename(gecko_rttm, os)
-    (filename, ext) = os.path.splitext(base.replace("_",""))
     srt_ranges = []
     rttm_lines = []
-    with open(gecko_rttm , 'r') as gecko_file, open('rttm/'+ base, 'w') \
+
+    if(gecko_rttm != None):
+        base = os.path.basename(gecko_rttm)
+        (audiofilename, ext) = os.path.splitext( get_audio_filename(gecko_rttm, os) )
+        (filename, ext) = os.path.splitext(base.replace("_",""))
+        
+        with open(gecko_rttm , 'r') as gecko_file, open('rttm/'+ base, 'w') \
         as rttm_file:
-        for line in gecko_file:
+            for line in gecko_file:
                 line = rm_brckts_spker_rttm(line)
                 rttm_lines.append(line)
                 print(line.rstrip().replace('<NA>', filename, 1).replace('<NA>', audiofilename, 1), end='\n',
-            file=rttm_file)
+                file=rttm_file)
+    
     base = os.path.basename(gecko_srt)
     with open(gecko_srt , 'r') as gecko_srt_file, open('segments/'+ base, 'w') \
         as srt_file:
         for line in gecko_srt_file:
-            if(tmstmp_scnds(line) != []):
-                if not is_speech_rttm(line, rttm_lines):
-                     print(line, end='\n', file=srt_file)
+                if(gecko_srt != None and gecko_rttm != None):
+                    if not is_speech_rttm(line, rttm_lines):
+                        print(line, end='\n', file=srt_file)
     rnm_json_rttm_srt(os)
-    print("The recording ids have been added to {}.".format(base))
+    #print("The recording ids have been added to {}.".format(base))
 
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='The arguments need to \
     be passed in.')
-    parser.add_argument('--rttm', required=True, help='the path to the rttm-file')
-    parser.add_argument('--srt', required=True, help='the path to the srt-file')
-    parser.add_argument('--subtitle-file', required=True, help='the path to the srt-file or subtitle-file')
+    parser.add_argument('--rttm', required=False, help='the path to the rttm-file')
+    parser.add_argument('--srt', required=False, help='the path to the srt-file')
+    parser.add_argument('--subtitle-file', required=False, help='the path to the srt-file or subtitle-file')
     args = parser.parse_args()
-    if args.rttm and args.srt:
+
+    if args.rttm and args.srt and not args.subtitle_file:
         main(args.rttm, args.srt)
-    if args.subtitle_file:
+
+    elif args.rttm and not args.srt and not args.subtitle_file:
+       main(args.rttm, None)
+    
+    elif args.srt and not args.rttm and not args.subtitle_file:
+       main(None, args.srt) 
+
+    elif args.rttm and args.srt and args.subtitle_file:
+        main(args.rttm, args.srt)
         create_segments_and_text.main(args.subtitle_file)
+    
+    elif args.subtitle_file and not args.srt and not args.rttm:
+        create_segments_and_text.main(args.subtitle_file)
+    
+    elif args.rttm and args.subtitle_file and not args.srt:
+        main(args.rttm, None)
+        create_segments_and_text.main(args.subtitle_file)
+
+    elif args.srt and args.subtitle_file and not args.rttm:
+        main(None, args.srt)
+        create_segments_and_text.main(args.subtitle_file)
+
     else:
         print('A file needs to be given.')
         exit(0)
