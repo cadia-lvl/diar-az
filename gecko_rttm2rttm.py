@@ -1,7 +1,8 @@
 # Author: Reykjavik University (Judy Fong <judyfong@ru.is>)
 # Description: Convert gecko rttm files to also have recordingids in the first
 # <NA>
-from decimal import * #For correct decimal rounding 
+from decimal import * 
+import create_segments_and_text
 
 #removes [something]+number (speaker number) - rttm files
 def rm_brckts_spker_rttm(line):
@@ -15,15 +16,10 @@ def rm_brckts_spker_rttm(line):
     else:
         return line
 
-#Converts hh_mm_ss to just seconds
+#Convert timestamps to seconds and partial seconds hh:mm:ss.ff
 def cnvrt_hh_mm_sec(hh_mm_ss):
-    hh_mm_ss = hh_mm_ss.split(':')
-    hh = hh_mm_ss[0] #Seconds in the hour
-    m = hh_mm_ss[1] #Seconds in the minute
-    s = hh_mm_ss[2] #Seconds
-    s_d = s.replace(",",".")
-    total = ( int(hh) * 3600 ) + ( int(m) * 60) + Decimal(s_d)
-    return total
+    hh, m, s = hh_mm_ss.split(':')
+    return ( int(hh) * 3600 ) + ( int(m) * 60) + Decimal(s.replace(",","."))
 
 #Checks if a string is a timestamp
 def is_srt_tmstmp(tmstamp):
@@ -35,14 +31,13 @@ def is_srt_tmstmp(tmstamp):
             return True
     return False
     
-#checks if there is some speech in the rttm file
+#checks if there is some speech in the rttm file at specific segment
 def is_speech_rttm(srt_line, rttm_lines):
     ln_ind = 0 
     srt_range = tmstmp_scnds(srt_line)
     for rttm_line in rttm_lines:
         rttm_bgn_tm = rttm_line.split(' ')[3]
         rttm_spkr_else = rttm_line.split(' ')[7]
-
         if( Decimal(rttm_bgn_tm) >= srt_range[0] and Decimal(rttm_bgn_tm) < Decimal(str(srt_range[1])) ):
             if(rttm_spkr_else.isnumeric()):
                 return False
@@ -83,7 +78,7 @@ def rnm_json_rttm_srt(os):
     for filename in rttm_files:
         audiofilename = get_audio_filename(filename, os)
         os.rename("rttm/"+filename, "rttm/"+audiofilename)
-        print("The rttm file " + filename + " has been renamed to " +audiofilename)
+        print("The rttm file " + filename + " has been renamed to " + audiofilename)
 
     for filename in srt_files:
         audiofilename = get_audio_filename(filename, os)
@@ -119,11 +114,14 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='The arguments need to \
     be passed in.')
-    parser.add_argument('--rttm', required=True, help='the path to the rttm file')
-    parser.add_argument('--srt', required=True, help='the path to the srt file')
+    parser.add_argument('--rttm', required=True, help='the path to the rttm-file')
+    parser.add_argument('--srt', required=True, help='the path to the srt-file')
+    parser.add_argument('--subtitle-file', required=True, help='the path to the srt-file or subtitle-file')
     args = parser.parse_args()
     if args.rttm and args.srt:
         main(args.rttm, args.srt)
+    if args.subtitle_file:
+        create_segments_and_text.main(args.subtitle_file)
     else:
         print('A file needs to be given.')
         exit(0)
