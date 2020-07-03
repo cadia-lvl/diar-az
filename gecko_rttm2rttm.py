@@ -1,4 +1,4 @@
-# Author: Reykjavik University (Judy Fong <judyfong@ru.is>)
+# Authors: Reykjavik University (Judy Fong <judyfong@ru.is>) and (Arnar Freyr Kristinsson <arnark17@ru.is> )
 # Description: Convert gecko rttm files to also have recordingids in the first <NA>,
 # adds audio filenames to rttm files as the second field,
 # remove [] stuff (foreign, noise, music) from rttm files where there is a [something]+number,
