@@ -2,6 +2,8 @@
 /segments/
 /json/
 /wav/
+/data/
+/__pycache__/
 *.srt
 *.rttm
 *.json
