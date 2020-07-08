@@ -20,6 +20,7 @@ def main():
         for row in spkreader:
                 if(row[2].split()[0] == "Unknown"):
                     print(row[0].split("-")[1], row[1], row[2],creating_id("UNK", unknown_spkr_number), sep=',', file=spk_info)
+                    print(row[0].split("-")[1], row[1],creating_id("UNK", unknown_spkr_number), sep=',', file=spk_label)
                     unknown_spkr_number = unknown_spkr_number + 1
                 else: 
                     if(row[2] not in spk_ids):
