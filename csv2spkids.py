@@ -91,13 +91,14 @@ def main(name_file, correct_spelling):
                 print(recording_id.split("-")[1], spk_num, spk_ids[name], sep=',', file=spk_label)
                 print(recording_id.split("-")[1], spk_num, name, spk_ids[name], sep=',', file=spk_info)
             else:
-                episode = recording_id.split("-")[1]
-                episodes.sort()
-                if(episode in episodes):
-                    unknown_spkr_number = unknown_spkr_number + 1
-                else:
-                    episodes.append(episode)
-                    unknown_spkr_number = 1
+                if(correct_spelling == "True"):  
+                    episode = recording_id.split("-")[1]
+                    episodes.sort()
+                    if(episode in episodes):
+                        unknown_spkr_number = unknown_spkr_number + 1
+                    else:
+                        episodes.append(episode)
+                        unknown_spkr_number = 1
                 unknown = "Unknown {0:0=2d}".format(unknown_spkr_number)
                 print(recording_id.split("-")[1], spk_num, unknown, creating_id("UNK", unk_num ), sep=',', file=spk_info)
                 print(recording_id.split("-")[1], spk_num, unknown, creating_id("UNK", unknown_spkr_number), sep=',', file=spk_label)
