@@ -1,8 +1,9 @@
 # Author: Judy Fong and Arnar Freyr Kristinsson
-# Description: Create a csv file like in the corpus
+# Description: Create a csv file like in the corpus,
 # <audio-filename>,<spk-num>,<speaker label> and
 # create CSV file on the form:
-# <audio-filename>,<spk-num>,<speaker name>,<speaker label>
+# <audio-filename>,<spk-num>,<speaker name>,<speaker label>,
+#correct spelling mistakes
 # Install python-Levenshtein for detecting spelling mistakes: pip3 install python-Levenshtein
 
 from Levenshtein import distance
