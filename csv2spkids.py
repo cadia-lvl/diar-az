@@ -55,13 +55,6 @@ def correct_spelling_mistakes(row, contents, corrected):
     else:
         row[1][2] = most_common
     return (name, row[1][2], row)
-#Adds known speakers corrections to a dictonary so it's not needed to correct it manually many times
-def correct_known_speakers(row, contents):
-    corrected = {}
-    correction = correct_spelling_mistakes(row, contents, corrected)
-    old_name =  correction[0]
-    new_name = correction[1]
-    corrected[old_name] = new_name
 
 def main(name_file, correct_spelling):
     import csv
@@ -76,6 +69,7 @@ def main(name_file, correct_spelling):
         episode = None
         unknown = None
         unk_num = 1
+        corrected = {}
 
         for row in spkreader:
             contents.append(row)
@@ -83,26 +77,30 @@ def main(name_file, correct_spelling):
         for row in enumerate(contents):
             name = row[1][2]
             recording_id = row[1][0]
+            spk_num = row[1][1]
             if(name.split()[0] != "Unknown"):
-                if(correct_spelling == "True"):
-                    correct_known_speakers(row, contents) 
+                if(correct_spelling == "True"):   
+                    correction = correct_spelling_mistakes(row, contents, corrected)
+                    old_name =  correction[0]
+                    new_name = correction[1]
+                    corrected[old_name] = new_name
+                    name = new_name
                 if(name not in spk_ids):
                     spk_ids[name] = creating_id("SPK", known_spkr_number)
                     known_spkr_number = known_spkr_number + 1
-                print(recording_id.split("-")[1], name,spk_ids[name], sep=',', file=spk_label)
-                print(recording_id.split("-")[1], name, name,spk_ids[name], sep=',', file=spk_info)
+                print(recording_id.split("-")[1], spk_num, spk_ids[name], sep=',', file=spk_label)
+                print(recording_id.split("-")[1], spk_num, name, spk_ids[name], sep=',', file=spk_info)
             else:
                 episode = recording_id.split("-")[1]
                 episodes.sort()
                 if(episode in episodes):
                     unknown_spkr_number = unknown_spkr_number + 1
-
                 else:
                     episodes.append(episode)
                     unknown_spkr_number = 1
                 unknown = "Unknown {}".format(unknown_spkr_number)
-                print(recording_id.split("-")[1], unknown, creating_id("UNK", unk_num ), sep=',', file=spk_info)
-                print(recording_id.split("-")[1], unknown,creating_id("UNK", unknown_spkr_number), sep=',', file=spk_label)
+                print(recording_id.split("-")[1], spk_num, unknown, creating_id("UNK", unk_num ), sep=',', file=spk_info)
+                print(recording_id.split("-")[1], spk_num, unknown, creating_id("UNK", unknown_spkr_number), sep=',', file=spk_label)
                 unk_num = unk_num + 1
            
     if(correct_spelling == "True"):
