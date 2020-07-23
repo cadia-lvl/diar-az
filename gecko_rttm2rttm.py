@@ -38,11 +38,12 @@ def is_srt_tmstmp(tmstamp):
     
 #checks if there is some speech in the rttm file at specific segment 
 def is_speech_rttm(srt_line, rttm_lines):
+   
     if(tmstmp_scnds(srt_line) != []):
         srt_range = tmstmp_scnds(srt_line)
         for rttm_line in rttm_lines:
-            rttm_bgn_tm = rttm_line.split(' ')[3]
-            rttm_spkr_else = rttm_line.split(' ')[7]
+            rttm_bgn_tm = rttm_line.split()[3]
+            rttm_spkr_else = rttm_line.split()[7]
             if( Decimal(rttm_bgn_tm) >= srt_range[0] and Decimal(rttm_bgn_tm) < Decimal(str(srt_range[1])) ):
                 if(rttm_spkr_else.isnumeric()):
                     return False
@@ -81,12 +82,21 @@ def rename(dircontents, dirname, os):
 
 #Renames Json, Rttm and srt files
 def rnm_json_rttm_srt(os):
-    json_files = os.listdir('json')
-    rttm_files = os.listdir('rttm')
-    srt_files = os.listdir('segments')
-    rename(json_files, "json", os)
-    rename(rttm_files, "rttm", os)
-    rename(srt_files, "segments", os)
+    json = 'json'
+    rttm = 'rttm'
+    segments = 'segments'
+
+    if os.path.exists(json):
+        json_files = os.listdir(json)
+        rename(json_files, json, os)
+
+    if os.path.exists(rttm):
+        rttm_files = os.listdir(rttm)
+        rename(rttm_files, rttm, os)
+
+    if os.path.exists(segments):
+        srt_files = os.listdir(segments)
+        rename(srt_files, segments, os)
 
 #Checks the given arguments and calls the corresponding function
 def checkArguments(args):
@@ -114,33 +124,57 @@ def checkArguments(args):
         main(None, args.srt)
         create_segments_and_text.main(args.subtitle_file)
 
+    if args.statistics:
+        create_statistics()
+
     else:
         print('A file needs to be given.')
         exit(0)
+
+#Trims the srt file - removes segments that don't have any speech
+def trim_srt(gecko_srt, srt_folder, gecko_rttm, rttm_lines, os):
+    base = os.path.basename(gecko_srt)
+    if not os.path.exists(srt_folder):
+        os.mkdir(srt_folder)
+    with open(gecko_srt , 'r') as gecko_srt_file, open('segments/'+ base, 'w') \
+        as srt_file:
+        for line in gecko_srt_file:
+                if(gecko_rttm != None):
+                    if not is_speech_rttm(line, rttm_lines):
+                        print(line, end='\n', file=srt_file)
+
+#Removes []+number stuff 
+def trim_rttm(gecko_rttm, rttm_folder, os):
+    rttm_lines = []
+    base = os.path.basename(gecko_rttm)
+    (audiofilename, ext) = os.path.splitext( get_audio_filename(gecko_rttm, os) )
+    (filename, ext) = os.path.splitext(base.replace("_",""))
+    if not os.path.exists(rttm_folder):
+        os.mkdir(rttm_folder)
+    with open(gecko_rttm , 'r') as gecko_file, open('rttm/'+ base, 'w') \
+    as rttm_file:
+        for line in gecko_file:
+            line = rm_brckts_spker_rttm(line)
+            rttm_lines.append(line)
+            print(line.rstrip().replace('<NA>', filename, 1).replace('<NA>', audiofilename, 1), end='\n',
+            file=rttm_file)
+    return rttm_lines
+
+def create_statistics():
+    return True
 
 def main(gecko_rttm, gecko_srt):
     import os
     srt_ranges = []
     rttm_lines = []
+    srt_folder = 'segments/'
+    rttm_folder = 'rttm/'
+    
     if(gecko_rttm != None):
-        base = os.path.basename(gecko_rttm)
-        (audiofilename, ext) = os.path.splitext( get_audio_filename(gecko_rttm, os) )
-        (filename, ext) = os.path.splitext(base.replace("_",""))
-        with open(gecko_rttm , 'r') as gecko_file, open('rttm/'+ base, 'w') \
-        as rttm_file:
-            for line in gecko_file:
-                line = rm_brckts_spker_rttm(line)
-                rttm_lines.append(line)
-                print(line.rstrip().replace('<NA>', filename, 1).replace('<NA>', audiofilename, 1), end='\n',
-                file=rttm_file)
+        rttm_lines = trim_rttm(gecko_rttm, rttm_folder, os)
+
     if(gecko_srt != None):
-        base = os.path.basename(gecko_srt)
-        with open(gecko_srt , 'r') as gecko_srt_file, open('segments/'+ base, 'w') \
-            as srt_file:
-            for line in gecko_srt_file:
-                    if(gecko_rttm != None):
-                        if not is_speech_rttm(line, rttm_lines):
-                            print(line, end='\n', file=srt_file)
+        trim_srt(gecko_srt, srt_folder, gecko_rttm, rttm_lines, os)
     rnm_json_rttm_srt(os)
 
 if __name__ == '__main__':
@@ -150,5 +184,6 @@ if __name__ == '__main__':
     parser.add_argument('--rttm', required=False, help='the path to the rttm-file')
     parser.add_argument('--srt', required=False, help='the path to the srt-file')
     parser.add_argument('--subtitle-file', required=False, help='the path to the srt-file or subtitle-file')
+    parser.add_argument('--statistics', required=False, default='./csv2spkids.py', help='the path to the CSV file')
     args = parser.parse_args()
     checkArguments(args)
