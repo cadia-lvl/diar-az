@@ -4,7 +4,8 @@
 # remove [] stuff (foreign, noise, music) from rttm files where there is a [something]+number,
 #renames the rttm/json/srt files to just the audio filename 
 # and calls the create_segments_and_text.py
-#All fields are optinal but at least one of these must be provided: --rrtm, --srt, --subtitle-file
+#All fields are optional: --rrtm, --srt or --subtitle-file
+#If none is provided, only statistics are shown
 
 from decimal import * 
 import create_segments_and_text
@@ -21,7 +22,7 @@ def rm_brckts_spker_rttm(line):
     else:
         return line
 
-#Convert timestamps to seconds and partial seconds hh:mm:ss.ff
+#Convert timestamps to seconds and partial seconds ss.ff
 def cnvrt_hh_mm_sec(hh_mm_ss):
     hh, m, s = hh_mm_ss.split(':')
     return ( int(hh) * 3600 ) + ( int(m) * 60) + Decimal(s.replace(",","."))
@@ -43,9 +44,9 @@ def is_speech_rttm(srt_line, rttm_lines):
         srt_range = tmstmp_scnds(srt_line)
         for rttm_line in rttm_lines:
             rttm_bgn_tm = rttm_line.split()[3]
-            rttm_spkr_else = rttm_line.split()[7]
+            rttm_spkr = rttm_line.split()[7]
             if( Decimal(rttm_bgn_tm) >= srt_range[0] and Decimal(rttm_bgn_tm) < Decimal(str(srt_range[1])) ):
-                if(rttm_spkr_else.isnumeric()):
+                if(rttm_spkr.isnumeric()):
                     return False
     return True
 #Returns the timestamps in seconds to compare the srt file to the rttm file to remove the correct segments with no speech in it.
@@ -78,7 +79,7 @@ def rename(dircontents, dirname, os):
         audiofilename = get_audio_filename(filename, os)
         os.rename(dirname+"/"+filename, dirname+"/"+audiofilename)
         (fl, ext) = os.path.splitext(filename)
-        print("The {} file {} has been renamed to {}".format(ext, filename, audiofilename))
+        print("The file {} has been renamed to {}".format(filename, audiofilename))
 
 #Renames Json, Rttm and srt files
 def rnm_json_rttm_srt(os):
@@ -124,9 +125,6 @@ def checkArguments(args):
         main(None, args.srt)
         create_segments_and_text.main(args.subtitle_file)
 
-    if args.statistics:
-        create_statistics()
-
     else:
         print('A file needs to be given.')
         exit(0)
@@ -134,14 +132,21 @@ def checkArguments(args):
 #Trims the srt file - removes segments that don't have any speech
 def trim_srt(gecko_srt, srt_folder, gecko_rttm, rttm_lines, os):
     base = os.path.basename(gecko_srt)
+    segment_id = 0
     if not os.path.exists(srt_folder):
         os.mkdir(srt_folder)
-    with open(gecko_srt , 'r') as gecko_srt_file, open('segments/'+ base, 'w') \
+    with open(gecko_srt , 'r') as gecko_srt_file, open(srt_folder+ base, 'w') \
         as srt_file:
         for line in gecko_srt_file:
+                print(line)
+                #For the segment id
+                if(line.rstrip().isalnum()):
+                    segment_id = segment_id + 1
                 if(gecko_rttm != None):
                     if not is_speech_rttm(line, rttm_lines):
+                        print(segment_id, end='\n', file=srt_file)
                         print(line, end='\n', file=srt_file)
+    print("The file {} has been trimmed".format(base))
 
 #Removes []+number stuff 
 def trim_rttm(gecko_rttm, rttm_folder, os):
@@ -151,31 +156,88 @@ def trim_rttm(gecko_rttm, rttm_folder, os):
     (filename, ext) = os.path.splitext(base.replace("_",""))
     if not os.path.exists(rttm_folder):
         os.mkdir(rttm_folder)
-    with open(gecko_rttm , 'r') as gecko_file, open('rttm/'+ base, 'w') \
+    with open(gecko_rttm , 'r') as gecko_file, open(rttm_folder+ base, 'w') \
     as rttm_file:
         for line in gecko_file:
             line = rm_brckts_spker_rttm(line)
             rttm_lines.append(line)
             print(line.rstrip().replace('<NA>', filename, 1).replace('<NA>', audiofilename, 1), end='\n',
             file=rttm_file)
+    print("The file {} has been trimmed".format(base))
     return rttm_lines
 
-def create_statistics():
+#Creates the csv file
+def create_csv(csv_filename):
+    import csv2spkids #The csv script used to create the csv file
+    csv2spkids.main(csv_filename, "True")
+    print("CSV file have been created")
+
+def total_speech_time():
+    import os
+    total = 0
+    segment_time = 0
+    segments_folder = os.listdir("./segments")
+    minutes = 0
+    hours = 0
+
+    for segment_file in segments_folder:
+        with open("./segments/5008572T0.srt") as srt_file:
+            for line in srt_file:
+                fstcol = line.split("\n")[0].split(' ')[0]
+                lstcol = line.split("\n")[0].split(' ')[-1]
+                if(is_srt_tmstmp(fstcol) and is_srt_tmstmp(lstcol)):
+                    segment_time = cnvrt_hh_mm_sec(lstcol) - cnvrt_hh_mm_sec(fstcol)
+                    total = total + segment_time
+    return total
+
+def print_statistics(total):
+    with localcontext() as ctx:
+        ctx.prec = 4
+        total_mins = (Decimal(total) / 60) 
+        hours = round(total_mins / 60)
+        minutes = total_mins - (60*hours)
+        print(hours)
+        print(total_mins)
+    print("{} minutes".format( minutes) )
+
+
+#Creates the statistics from the Info CSV file
+def create_statistics(csv_info_file):
+    ided_speakers = 0
+    unknown_speakers = 0
+    total_speakers = 0
+    with open(csv_info_file, 'r') as spk_info:
+        for line in spk_info:
+            total_speakers = total_speakers + 1
+            spk_name = line.split(',')[2]
+            if(spk_name.split()[0] != "Unknown"):
+                ided_speakers = ided_speakers + 1
+            else:
+                unknown_speakers = unknown_speakers + 1
+    print("----------------------------------------------------")
+    print("{} ided speakers".format(ided_speakers))
+    print("{} unknown speakers".format(unknown_speakers))
+    print("{} total speakers".format(total_speakers))
+    total = total_speech_time()
+    print_statistics(total)
+
+    print("Statistics have been updated")
     return True
 
 def main(gecko_rttm, gecko_srt):
     import os
-    srt_ranges = []
     rttm_lines = []
     srt_folder = 'segments/'
     rttm_folder = 'rttm/'
-    
+    print("------------------------------------------------------------")
     if(gecko_rttm != None):
         rttm_lines = trim_rttm(gecko_rttm, rttm_folder, os)
 
     if(gecko_srt != None):
         trim_srt(gecko_srt, srt_folder, gecko_rttm, rttm_lines, os)
+    print("------------------------------------------------------------")
     rnm_json_rttm_srt(os)
+    print("------------------------------------------------------------")
 
 if __name__ == '__main__':
     import argparse
@@ -184,6 +246,13 @@ if __name__ == '__main__':
     parser.add_argument('--rttm', required=False, help='the path to the rttm-file')
     parser.add_argument('--srt', required=False, help='the path to the srt-file')
     parser.add_argument('--subtitle-file', required=False, help='the path to the srt-file or subtitle-file')
-    parser.add_argument('--statistics', required=False, default='./csv2spkids.py', help='the path to the CSV file')
+    parser.add_argument('--create_csv_off', required=False, default='false', help='create the csv file on/off')
+    parser.add_argument('--statistics', required=False, default='../reco2spk_num2spk_info.csv', help='the path to the CSV file')
+    parser.add_argument('--statistics_off', required=False, default='false', help='show statistics on/off')
+    parser.add_argument('--create_csv', required=False, default='../reco2spk_num2spk_name.csv', help='the path to the CSV file')
     args = parser.parse_args()
     checkArguments(args)
+    if args.create_csv_off == 'false':
+        create_csv(args.create_csv)
+    if args.statistics_off == 'false':
+        create_statistics(args.statistics)
