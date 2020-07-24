@@ -190,16 +190,18 @@ def total_speech_time():
                     total = total + segment_time
     return total
 
-def print_statistics(total):
+#Creates a string to print for statistics
+def statistics_string(total_speakers, total_time, ided_speakers, unknown_speakers):
+    statistics = ""
     with localcontext() as ctx:
         ctx.prec = 4
-        total_mins = (Decimal(total) / 60) 
+        total_mins = (Decimal(total_time) / 60) 
         hours = round(total_mins / 60)
         minutes = total_mins - (60*hours)
-        print(hours)
-        print(total_mins)
-    print("{} minutes".format( minutes) )
-
+    statistics = statistics + "----------\n{} minutes ({} hrs {} mins) of speech\n{} ided speakers\n".format(total_mins, hours, minutes, ided_speakers)
+    statistics = statistics + "{} unknown speakers\n".format(unknown_speakers) 
+    statistics = statistics + "{} total speakers".format(total_speakers)
+    print(statistics)
 
 #Creates the statistics from the Info CSV file
 def create_statistics(csv_info_file):
@@ -214,15 +216,20 @@ def create_statistics(csv_info_file):
                 ided_speakers = ided_speakers + 1
             else:
                 unknown_speakers = unknown_speakers + 1
-    print("----------------------------------------------------")
-    print("{} ided speakers".format(ided_speakers))
-    print("{} unknown speakers".format(unknown_speakers))
-    print("{} total speakers".format(total_speakers))
-    total = total_speech_time()
-    print_statistics(total)
+   
+    total_time = total_speech_time()
+    statistics_string(total_speakers, total_time, ided_speakers, unknown_speakers)
 
     print("Statistics have been updated")
     return True
+
+#Auto replaces statistics given there is a line that has some string that indicates the correct place in the file
+def update_ruv_di_readme(ruv_di_readme, statistics_indicator):
+    with open(ruv_di_readme, 'r') as readme:
+        for line in readme:
+            if(line.rstrip() == statistics_indicator):
+                print(line)
+    return None
 
 def main(gecko_rttm, gecko_srt):
     import os
@@ -241,8 +248,8 @@ def main(gecko_rttm, gecko_srt):
 
 if __name__ == '__main__':
     import argparse
-    parser = argparse.ArgumentParser(description='The arguments need to \
-    be passed in.')
+    parser = argparse.ArgumentParser(description='Optional arguments that are possible to provide, depending on what is needed to be done. \
+        If none arguments are provided the script will only rename the corresponding files if they exist')
     parser.add_argument('--rttm', required=False, help='the path to the rttm-file')
     parser.add_argument('--srt', required=False, help='the path to the srt-file')
     parser.add_argument('--subtitle-file', required=False, help='the path to the srt-file or subtitle-file')
@@ -250,9 +257,13 @@ if __name__ == '__main__':
     parser.add_argument('--statistics', required=False, default='../reco2spk_num2spk_info.csv', help='the path to the CSV file')
     parser.add_argument('--statistics_off', required=False, default='false', help='show statistics on/off')
     parser.add_argument('--create_csv', required=False, default='../reco2spk_num2spk_name.csv', help='the path to the CSV file')
+    parser.add_argument('--ruv_di_readme', required=False, default='./ruv-di_README', help='Ruv-di readme file path')
+    parser.add_argument('--update_ruv_di_readme_off', required=False, default='false', help='Update Ruv-di readme on/off')
     args = parser.parse_args()
     checkArguments(args)
     if args.create_csv_off == 'false':
         create_csv(args.create_csv)
     if args.statistics_off == 'false':
         create_statistics(args.statistics)
+    if args.update_ruv_di_readme_off == 'false':
+        update_ruv_di_readme(args.ruv_di_readme, "Statistics")
