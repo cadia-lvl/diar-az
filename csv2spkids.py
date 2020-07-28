@@ -17,9 +17,10 @@ def creating_id(spk_type, spkr_number):
 #Sometimes, as in the case when the names are very similar, 
 # the script will correct spelling mistakes when it isn't supposed to do so.
 #So manual verification is needed, but only for these lines 
-# that actually may have spelling errors
+# that actually may have spelling errors. 
+# Also, if the name is not unknown but contains a number then something is off
 def manual_correction(old_name, new_name):
-    if(old_name == new_name):
+    if(old_name == new_name and old_name.replace(" ", "").replace("-","").replace(".","").isalpha()):
         return new_name
 
     print("Type in enter if the correction is correct, otherwise type in the correct name")

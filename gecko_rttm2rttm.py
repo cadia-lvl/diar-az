@@ -123,10 +123,8 @@ def checkArguments(args):
     elif args.srt and args.subtitle_file and not args.rttm:
         main(None, args.srt)
         create_segments_and_text.main(args.subtitle_file)
-
     else:
-        print('A file needs to be given.')
-        exit(0)
+        main(None, None)
 
 #Trims the srt file - removes segments that don't have any speech
 def trim_srt(gecko_srt, srt_folder, gecko_rttm, rttm_lines, os):
@@ -256,7 +254,7 @@ def update_ruv_di_readme(ruv_di_readme, statistics_indicator, csv_info_file):
                 readme_contents = readme_contents + line
             else:
                 statistics_line_count = statistics_line_count - 1
-                
+
     with open(ruv_di_readme, 'w') as readme_file:
         print(readme_contents, file=readme_file)
 
@@ -268,16 +266,17 @@ def main(gecko_rttm, gecko_srt):
     rttm_lines = []
     srt_folder = 'segments/'
     rttm_folder = 'rttm/'
-    print("------------------------------------------------------------")
     if(gecko_rttm != None):
+        print("------------------------------------------------------------")
         rttm_lines = trim_rttm(gecko_rttm, rttm_folder, os)
 
     if(gecko_srt != None):
+        print("------------------------------------------------------------")
         trim_srt(gecko_srt, srt_folder, gecko_rttm, rttm_lines, os)
     print("------------------------------------------------------------")
     rnm_json_rttm_srt(os)
     print("------------------------------------------------------------")
-
+   
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Optional arguments that are possible to provide, depending on what is needed to be done. \
