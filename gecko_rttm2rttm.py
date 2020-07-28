@@ -238,6 +238,8 @@ def create_statistics(csv_info_file):
     return stats
 
 #Auto replaces statistics given there is a line that has some string that indicates the correct place in the file
+#Only one occourence of any name should be taken into the account so for people who share exactly the same name, 
+#one of them will only be considered.
 def update_ruv_di_readme(ruv_di_readme, statistics_indicator, csv_info_file):
     statistics = create_statistics(csv_info_file)
     statistics_line_count = 0
@@ -254,7 +256,7 @@ def update_ruv_di_readme(ruv_di_readme, statistics_indicator, csv_info_file):
                 readme_contents = readme_contents + line
             else:
                 statistics_line_count = statistics_line_count - 1
-    
+                
     with open(ruv_di_readme, 'w') as readme_file:
         print(readme_contents, file=readme_file)
 
