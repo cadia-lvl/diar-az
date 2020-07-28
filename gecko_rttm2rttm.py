@@ -176,21 +176,35 @@ def total_speech_time():
     import os
     total = 0
     segment_time = 0
-    segments_folder = os.listdir("./segments")
-    minutes = 0
-    hours = 0
+    segment_folder = "./segments"
+    segments_files = os.listdir(segment_folder)
+    segment_time = [] #For sorting segment time for correct subtraction
+    segment_cnt = 0
+    fstcol = None
+    lstcol = None
 
-    for segment_file in segments_folder:
-        with open("./segments/5008572T0.srt") as srt_file:
+    for segment_file in segments_files:
+        with open(segment_folder+"/"+segment_file) as srt_file:
             for line in srt_file:
                 fstcol = line.split("\n")[0].split(' ')[0]
                 lstcol = line.split("\n")[0].split(' ')[-1]
                 if(is_srt_tmstmp(fstcol) and is_srt_tmstmp(lstcol)):
                     segment_time = cnvrt_hh_mm_sec(lstcol) - cnvrt_hh_mm_sec(fstcol)
+                    # Some .srt files may contain invalid srt line(s) that affect the calculations, 
+                    # so some minimal .srt verfication is done here. 
+                    # Gecko should fix this when .srt file is saved again, including the segment id's. 
+                    # To avoid this in the future a little bit of verification must take place.
+                    segment_cnt = segment_cnt + 1
+                    if(segment_time < 0):
+                        print("Segment failure")
+                        print(line)
+                        print("The segment above, segment id: {} in the file {} needs to be fixed".format(segment_cnt, segment_file))
+                        exit(0) #Obviously something wrong so won't continue until the file is fixed manually
                     total = total + segment_time
+            segment_cnt = 0
     return total
 
-#Creates a string to print for statistics
+#Creates a string to print for statistics - returns how many lines should be replaced
 def statistics_string(total_speakers, total_time, ided_speakers, unknown_speakers):
     statistics = ""
     with localcontext() as ctx:
@@ -208,6 +222,7 @@ def create_statistics(csv_info_file):
     ided_speakers = 0
     unknown_speakers = 0
     total_speakers = 0
+    total_time = total_speech_time()
     with open(csv_info_file, 'r') as spk_info:
         for line in spk_info:
             total_speakers = total_speakers + 1
@@ -216,10 +231,7 @@ def create_statistics(csv_info_file):
                 ided_speakers = ided_speakers + 1
             else:
                 unknown_speakers = unknown_speakers + 1
-   
-    total_time = total_speech_time()
     statistics_string(total_speakers, total_time, ided_speakers, unknown_speakers)
-
     print("Statistics have been updated")
     return True
 
@@ -260,9 +272,9 @@ if __name__ == '__main__':
     parser.add_argument('--ruv_di_readme', required=False, default='./ruv-di_README', help='Ruv-di readme file path')
     parser.add_argument('--update_ruv_di_readme_off', required=False, default='false', help='Update Ruv-di readme on/off')
     args = parser.parse_args()
-    checkArguments(args)
-    if args.create_csv_off == 'false':
-        create_csv(args.create_csv)
+    #checkArguments(args)
+    #if args.create_csv_off == 'false':
+     #   create_csv(args.create_csv)
     if args.statistics_off == 'false':
         create_statistics(args.statistics)
     if args.update_ruv_di_readme_off == 'false':
