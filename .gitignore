@@ -4,6 +4,8 @@
 /wav/
 /data/
 /__pycache__/
+/rttm_gecko/
+/srt_gecko/
 *.srt
 *.rttm
 *.json
