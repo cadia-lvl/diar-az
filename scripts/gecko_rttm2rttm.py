@@ -103,19 +103,20 @@ def rnm_json_rttm_srt(os):
 
 #Checks the given arguments and calls the corresponding function
 def checkArguments(args):
-    if args.rttm and args.srt and not args.subtitle_file:
-        main(args.rttm, args.srt)
 
-    elif args.rttm and not args.srt and not args.subtitle_file:
+    if args.create_csv_off == 'false':
+       create_csv(args.create_csv)
+    if args.statistics_off == 'false':
+        create_statistics(args.statistics)
+    if args.update_ruv_di_readme_off == 'false':
+        update_ruv_di_readme(args.ruv_di_readme, "Statistics", args.statistics)
+
+    if args.rttm and not args.srt and not args.subtitle_file:
        main(args.rttm, None)
     
     elif args.srt and not args.rttm and not args.subtitle_file:
        main(None, args.srt) 
-
-    elif args.rttm and args.srt and args.subtitle_file:
-        main(args.rttm, args.srt)
-        create_segments_and_text.main(args.subtitle_file)
-    
+ 
     elif args.subtitle_file and not args.srt and not args.rttm:
         create_segments_and_text.main(args.subtitle_file)
     
@@ -126,6 +127,7 @@ def checkArguments(args):
     elif args.srt and args.subtitle_file and not args.rttm:
         main(None, args.srt)
         create_segments_and_text.main(args.subtitle_file)
+
     else:
         main(None, None)
 
@@ -146,8 +148,6 @@ def trim_srt(gecko_srt, srt_folder, gecko_rttm, rttm_lines, os):
   
     with open(srt_folder+gecko_srt, 'w') as srt_file:
         print(segment, end='\n', file=srt_file)
-    print("SEGMENT:")
-    print(segment)
     print("The file {} has been trimmed".format(base))
 
 #Removes []+number stuff 
@@ -273,7 +273,6 @@ def main(gecko_rttm, gecko_srt):
     rttm_lines = []
     srt_folder = 'segments/'
     rttm_folder = 'rttm/'
-
     rnm_json_rttm_srt(os)
     #for each file in srt folder and for each file in rttm folder
     srt_files = sorted(os.listdir(srt_folder)) 
@@ -287,7 +286,7 @@ def main(gecko_rttm, gecko_srt):
         rttm_base = os.path.basename(rttm_file)
         srt_base = os.path.basename(srt_file)
         rttm_lines = trim_rttm(rttm_base, rttm_folder, os)
-       # trim_srt(srt_base, srt_folder, gecko_rttm, rttm_lines, os)
+        trim_srt(srt_base, srt_folder, gecko_rttm, rttm_lines, os)
    
 if __name__ == '__main__':
     import argparse
@@ -304,9 +303,3 @@ if __name__ == '__main__':
     parser.add_argument('--update_ruv_di_readme_off', required=False, default='false', help='Update Ruv-di readme on/off')
     args = parser.parse_args()
     checkArguments(args)
-    if args.create_csv_off == 'false':
-       create_csv(args.create_csv)
-    if args.statistics_off == 'false':
-        create_statistics(args.statistics)
-    if args.update_ruv_di_readme_off == 'false':
-        update_ruv_di_readme(args.ruv_di_readme, "Statistics", args.statistics)
