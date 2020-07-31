@@ -12,15 +12,16 @@ import create_segments_and_text
 
 #removes [something]+number (speaker number) - rttm files
 def rm_brckts_spker_rttm(line):
-    spkridOrBracketStuff = line.split(" ")[7]
-    if "]+" in spkridOrBracketStuff:
-        spkrnum = spkridOrBracketStuff.split("+")[1]
-        endbrackpos = line.find("]")
-        bgnbrackpos = line.find("[")
-        removed = line.replace ( line[ bgnbrackpos : endbrackpos+2 ], "")
-        return removed
-    else:
-        return line
+    if(line != '\n'):
+        spkridOrBracketStuff = line.split()[7]
+        if "]+" in spkridOrBracketStuff:
+            spkrnum = spkridOrBracketStuff.split("+")[1]
+            endbrackpos = line.find("]")
+            bgnbrackpos = line.find("[")
+            removed = line.replace ( line[ bgnbrackpos : endbrackpos+2 ], "")
+            return removed
+        else:
+            return line
 
 #Convert timestamps to seconds and partial seconds ss.ff
 def cnvrt_hh_mm_sec(hh_mm_ss):
@@ -140,8 +141,6 @@ def trim_srt(gecko_srt, srt_folder, gecko_rttm, rttm_lines, os):
                 #For the segment id
                 if(line.rstrip().isalnum()):
                     segment_id = segment_id + 1
-                #if(gecko_rttm != None):
-     #           print(gecko_rttm)
                 if not is_speech_rttm(line, rttm_lines):
                     segment = segment + str(segment_id) + "\n" + line + "\n"
   
@@ -162,7 +161,10 @@ def trim_rttm(gecko_rttm, rttm_folder, os):
     with open(rttm_folder+gecko_rttm, 'r') as rttm_file:
         for line in rttm_file:
             line = rm_brckts_spker_rttm(line)
-            contents = contents + line.rstrip().replace('<NA>', filename, 1).replace('<NA>', audiofilename, 1) + '\n'
+            if(line != None):
+                second_field = line.split()[1]
+                line = line.replace(second_field, audiofilename, 1)
+                contents = contents + line
 
     with open(rttm_folder+gecko_rttm, 'w') as rttm_file:
         print(contents, end='\n', file=rttm_file)
@@ -265,40 +267,27 @@ def update_ruv_di_readme(ruv_di_readme, statistics_indicator, csv_info_file):
         print(readme_contents, file=readme_file)
 
     print("Statistics have been updated")
-    return None
 
 def main(gecko_rttm, gecko_srt):
     import os
     rttm_lines = []
     srt_folder = 'segments/'
     rttm_folder = 'rttm/'
-    print("------------------------------------------------------------")
+
     rnm_json_rttm_srt(os)
     #for each file in srt folder and for each file in rttm folder
     srt_files = sorted(os.listdir(srt_folder)) 
     rttm_files = sorted(os.listdir(rttm_folder))
-    #print(srt_files)
-    #print("\n")
-    #print(rttm_files)
+   
     #Taking usage of the fact there is a rttm file for each srt file
-    i = 0
     for filename_enum in enumerate(rttm_files):
-        i = i + 1
         line_number = filename_enum[0]
         rttm_file = filename_enum[1]
-        #print("RTTM")
-       # print(rttm_file)
         srt_file = srt_files[line_number] #same line number as in rttm file as there is a .rttm file for each .srt file
-        #print("SRT")
-        #print(srt_file)
         rttm_base = os.path.basename(rttm_file)
         srt_base = os.path.basename(srt_file)
         rttm_lines = trim_rttm(rttm_base, rttm_folder, os)
-        #print(rttm_lines)
-        trim_srt(srt_base, srt_folder, gecko_rttm, rttm_lines, os)
-    print("------------------------------------------------------------")
-    #
-    print("------------------------------------------------------------")
+       # trim_srt(srt_base, srt_folder, gecko_rttm, rttm_lines, os)
    
 if __name__ == '__main__':
     import argparse
