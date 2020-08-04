@@ -10,15 +10,20 @@
 from decimal import * 
 import create_segments_and_text
 
-#removes [something]+number (speaker number) - rttm files
-def rm_brckts_spker_rttm(line):
+#removes [something]+number (speaker number) and number+[something] - rttm files
+def rm_brckts_spker_rttm(line, audiofilename):
+    
     if(line != '\n'):
         spkridOrBracketStuff = line.split()[7]
+        endbrackpos = line.find("]")
+        bgnbrackpos = line.find("[")
+    
         if "]+" in spkridOrBracketStuff:
-            spkrnum = spkridOrBracketStuff.split("+")[1]
-            endbrackpos = line.find("]")
-            bgnbrackpos = line.find("[")
             removed = line.replace ( line[ bgnbrackpos : endbrackpos+2 ], "")
+            return removed
+
+        if "+[" in spkridOrBracketStuff:
+            removed = line.replace ( line[ bgnbrackpos-1 : endbrackpos+2 ], " ")
             return removed
         else:
             return line
@@ -150,7 +155,7 @@ def trim_srt(gecko_srt, srt_folder, gecko_rttm, rttm_lines, os):
         print(segment, end='\n', file=srt_file)
     print("The file {} has been trimmed".format(base))
 
-#Removes []+number stuff 
+#Removes []+number stuff and number+[] stuff
 def trim_rttm(gecko_rttm, rttm_folder, os):
     base = os.path.basename(gecko_rttm)
     contents = ""
@@ -160,7 +165,9 @@ def trim_rttm(gecko_rttm, rttm_folder, os):
         os.mkdir(rttm_folder)
     with open(rttm_folder+gecko_rttm, 'r') as rttm_file:
         for line in rttm_file:
-            line = rm_brckts_spker_rttm(line)
+            
+            line = rm_brckts_spker_rttm(line, audiofilename)
+            
             if(line != None):
                 second_field = line.split()[1]
                 line = line.replace(second_field, audiofilename, 1)
