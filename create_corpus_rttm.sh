@@ -10,3 +10,4 @@ cp ./srt_gecko/* ./segments
 touch gecko_rttm2rttm.log
 python3 scripts/gecko_rttm2rttm.py --create_csv_off 'True' | cat - gecko_rttm2rttm.log > temp && mv temp gecko_rttm2rttm.log
 date | cat - gecko_rttm2rttm.log > temp && mv temp gecko_rttm2rttm.log 
+#python3 scripts/gecko_rttm2rttm.py --create_csv_off 'False'

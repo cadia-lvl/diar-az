@@ -108,36 +108,19 @@ def rnm_json_rttm_srt(os):
 
 #Checks the given arguments and calls the corresponding function
 def checkArguments(args):
-
+    #Only do this when asked for
     if args.create_csv_off == 'false':
        create_csv(args.create_csv)
-    if args.statistics_off == 'false':
-        create_statistics(args.statistics)
-    if args.update_ruv_di_readme_off == 'false':
-        update_ruv_di_readme(args.ruv_di_readme, "Statistics", args.statistics)
-
-    if args.rttm and not args.srt and not args.subtitle_file:
-       main(args.rttm, None)
-    
-    elif args.srt and not args.rttm and not args.subtitle_file:
-       main(None, args.srt) 
- 
-    elif args.subtitle_file and not args.srt and not args.rttm:
-        create_segments_and_text.main(args.subtitle_file)
-    
-    elif args.rttm and args.subtitle_file and not args.srt:
-        main(args.rttm, None)
-        create_segments_and_text.main(args.subtitle_file)
-
-    elif args.srt and args.subtitle_file and not args.rttm:
-        main(None, args.srt)
-        create_segments_and_text.main(args.subtitle_file)
-
+       exit()
     else:
-        main(None, None)
+        if args.statistics_off == 'false':
+            create_statistics(args.statistics)
+        if args.update_ruv_di_readme_off == 'false':
+            update_ruv_di_readme(args.ruv_di_readme, "Statistics", args.statistics)
+        
 
 #Trims the srt file - removes segments that don't have any speech
-def trim_srt(gecko_srt, srt_folder, gecko_rttm, rttm_lines, os):
+def trim_srt(gecko_srt, srt_folder, rttm_lines, os):
     base = os.path.basename(gecko_srt)
     segment_id = 0
     segment = ""
@@ -165,9 +148,7 @@ def trim_rttm(gecko_rttm, rttm_folder, os):
         os.mkdir(rttm_folder)
     with open(rttm_folder+gecko_rttm, 'r') as rttm_file:
         for line in rttm_file:
-            
             line = rm_brckts_spker_rttm(line, audiofilename)
-            
             if(line != None):
                 second_field = line.split()[1]
                 line = line.replace(second_field, audiofilename, 1)
@@ -275,7 +256,15 @@ def update_ruv_di_readme(ruv_di_readme, statistics_indicator, csv_info_file):
 
     print("Statistics have been updated")
 
-def main(gecko_rttm, gecko_srt):
+#Feeds the create_segments script of srt files
+def create_segments(os):
+    srt_folder = 'segments/'
+    srt_files = os.listdir(srt_folder)
+    
+    for filename in srt_files:
+        create_segments_and_text.main("{}/{}".format(srt_folder, filename))
+
+def main():
     import os
     rttm_lines = []
     srt_folder = 'segments/'
@@ -293,15 +282,15 @@ def main(gecko_rttm, gecko_srt):
         rttm_base = os.path.basename(rttm_file)
         srt_base = os.path.basename(srt_file)
         rttm_lines = trim_rttm(rttm_base, rttm_folder, os)
-        trim_srt(srt_base, srt_folder, gecko_rttm, rttm_lines, os)
-   
+        trim_srt(srt_base, srt_folder, rttm_lines, os)
+    create_segments(os)
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Optional arguments that are possible to provide, depending on what is needed to be done. \
         If none arguments are provided the script will only rename the corresponding files if they exist')
     parser.add_argument('--rttm', required=False, help='the path to the rttm-file')
     parser.add_argument('--srt', required=False, help='the path to the srt-file')
-    parser.add_argument('--subtitle-file', required=False, help='the path to the srt-file or subtitle-file')
+    parser.add_argument('--subtitle-file', required=False, default='./scripts/create_segments_and_text.py', help='the path to the srt-file or subtitle-file')
     parser.add_argument('--create_csv_off', required=False, default='false', help='create the csv file on/off')
     parser.add_argument('--statistics', required=False, default='../reco2spk_num2spk_info.csv', help='the path to the CSV file')
     parser.add_argument('--statistics_off', required=False, default='false', help='log the statistics on/off')
@@ -310,3 +299,4 @@ if __name__ == '__main__':
     parser.add_argument('--update_ruv_di_readme_off', required=False, default='false', help='Update Ruv-di readme on/off')
     args = parser.parse_args()
     checkArguments(args)
+    main()
