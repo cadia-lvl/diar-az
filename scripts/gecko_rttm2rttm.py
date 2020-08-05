@@ -5,7 +5,7 @@
 #renames the rttm/json/srt files to just the audio filename 
 # and calls the create_segments_and_text.py
 #All fields are optional: --rrtm, --srt or --subtitle-file
-#If none is provided, only statistics are shown
+#If none arguments are provided the script will only rename the corresponding files if they exist and update the readme file
 
 from decimal import * 
 import create_segments_and_text
@@ -109,9 +109,9 @@ def rnm_json_rttm_srt(os):
 #Checks the given arguments and calls the corresponding function
 def checkArguments(args):
     #Only do this when asked for
-    if args.create_csv_off == 'false':
+    if args.only_csv == 'True':
        create_csv(args.create_csv)
-       exit()
+       exit(0)
     else:
         if args.statistics_off == 'false':
             create_statistics(args.statistics)
@@ -287,16 +287,15 @@ def main():
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Optional arguments that are possible to provide, depending on what is needed to be done. \
-        If none arguments are provided the script will only rename the corresponding files if they exist')
+        If none arguments are provided the script will only rename the corresponding files if they exist and update the readme file')
     parser.add_argument('--rttm', required=False, help='the path to the rttm-file')
     parser.add_argument('--srt', required=False, help='the path to the srt-file')
-    parser.add_argument('--subtitle-file', required=False, default='./scripts/create_segments_and_text.py', help='the path to the srt-file or subtitle-file')
-    parser.add_argument('--create_csv_off', required=False, default='false', help='create the csv file on/off')
     parser.add_argument('--statistics', required=False, default='../reco2spk_num2spk_info.csv', help='the path to the CSV file')
     parser.add_argument('--statistics_off', required=False, default='false', help='log the statistics on/off')
     parser.add_argument('--create_csv', required=False, default='../reco2spk_num2spk_name.csv', help='the path to the CSV file')
     parser.add_argument('--ruv_di_readme', required=False, default='./ruv-di_README', help='Ruv-di readme file path')
     parser.add_argument('--update_ruv_di_readme_off', required=False, default='false', help='Update Ruv-di readme on/off')
+    parser.add_argument('--only_csv', default='false', help='Only correct spelling errors and create the CSV file')
     args = parser.parse_args()
     checkArguments(args)
     main()
