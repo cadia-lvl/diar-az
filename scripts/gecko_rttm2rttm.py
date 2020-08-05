@@ -108,17 +108,16 @@ def rnm_json_rttm_srt(os):
 
 #Checks the given arguments and calls the corresponding function
 def checkArguments(args):
-    #Only do this when asked for
     if args.only_csv == 'True':
-       create_csv(args.create_csv)
-       exit(0)
-    else:
+        create_csv(args.create_csv)
+
         if args.statistics_off == 'false':
             create_statistics(args.statistics)
+
         if args.update_ruv_di_readme_off == 'false':
             update_ruv_di_readme(args.ruv_di_readme, "Statistics", args.statistics)
+        exit(0)
         
-
 #Trims the srt file - removes segments that don't have any speech
 def trim_srt(gecko_srt, srt_folder, rttm_lines, os):
     base = os.path.basename(gecko_srt)
