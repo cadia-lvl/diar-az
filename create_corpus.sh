@@ -3,8 +3,11 @@
 # Copyright 2020 Judy Fong - lvl@judyyfong.xyz
 # Apache 2.0
 #
-#SBATCH --output=gecko_rttm2rttm.log
+#SBATCH --output=logs/create_corpus_%J.log
 #SBATCH --nodelist=terra
+
+
+# TODO: gecko_rtt2rttm.log
 
 set -eu -o pipefail
 
@@ -55,14 +58,12 @@ fi
 
 if [ $stage -le 1 ]; then
 
-mkdir -p rttm
-mkdir -p json
-mkdir -p segments
+  mkdir -p $data/corpus/json
 
-cp ./rttm_gecko/* ./rttm
-cp ./srt_gecko/* ./segments
-touch gecko_rttm2rttm.log
-python3 scripts/gecko_rttm2rttm.py | cat - gecko_rttm2rttm.log > temp && mv temp gecko_rttm2rttm.log
-date | cat - gecko_rttm2rttm.log > temp && mv temp gecko_rttm2rttm.log 
-python3 scripts/gecko_rttm2rttm.py --only_csv 'True'
+  cp ./rttm_gecko/* $data/corpus/rttm
+  cp ./srt_gecko/* $data/corpus/segments
+  touch gecko_rttm2rttm.log
+  python3 scripts/gecko_rttm2rttm.py | cat - gecko_rttm2rttm.log > temp && mv temp gecko_rttm2rttm.log
+  date | cat - gecko_rttm2rttm.log > temp && mv temp gecko_rttm2rttm.log
+  python3 scripts/gecko_rttm2rttm.py --only_csv 'True'
 fi
