@@ -63,7 +63,10 @@ if [ $stage -le 1 ]; then
   cp ./rttm_gecko/* $data/corpus/rttm
   cp ./srt_gecko/* $data/corpus/segments
   touch gecko_rttm2rttm.log
+  # Renames corresponding files if they exist and update the readme file
   python3 scripts/gecko_rttm2rttm.py | cat - gecko_rttm2rttm.log > temp && mv temp gecko_rttm2rttm.log
+  # Adds the date to the readme file
   date | cat - gecko_rttm2rttm.log > temp && mv temp gecko_rttm2rttm.log
+  # Only correct spelling errors and create the csv file
   python3 scripts/gecko_rttm2rttm.py --only_csv 'True'
 fi
