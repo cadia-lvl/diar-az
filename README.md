@@ -2,8 +2,17 @@
 Diarization A to Z - Gecko to Kaldi and corpus and back
 
 There are two goals when automating the diarization process:
-1. Adding to and existing diarization corpus
+1. Adding to an existing diarization corpus
 2. Running the corpus through kaldi
+
+csv file creation was added to [Gecko](https://github.com/judyfong/gecko/pull/1) to allow for anonymous and named speaker names. You need to use this version of gecko or a fork of it to create the diarization corpus type specified here.
+
+## Running
+
+In order to run all the steps do the following:
+`bash create_corpus.sh <gecko archive> <audio directory>`
+
+`bash create_corpus.sh gecko_files.zip /data/ruv_unprocessed/audio/`
 
 # Notes
 Everything but the people name validation should be done by calling just one script. This script can call other scripts but the user should only have to call one. So possibly two scripts.
@@ -36,7 +45,6 @@ Do not commit any files or information that is specific to this corpus, e.g. nam
 1. Create a csv file like in the corpus`<audio-filename>,<spk-num>,<speaker label>`. This involves pairing up all the written names across files then matching them up with the existing spkIds or creating new ones for new speakers. This needs to be done with unknowns too but they also need to be renamed to the next numbered unknown available. 
 1. Also create `<audio-filename>,<spk-num>,<speaker name>,<speaker label>`
 4. Allow there to be 1-3 spelling mistakes in the names which will then be manually validated and corrected.
-1. Create/export the unvalidated csv file from Gecko instead of the other students manually making it.
 
 
 
