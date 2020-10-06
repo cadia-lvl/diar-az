@@ -25,6 +25,7 @@ fi
 text_archive=$1
 audio_directory=$2
 data=data
+recording_list=$data/episode_list.txt
 stage=1
 
 mkdir -p $data/gecko/.backup
@@ -57,7 +58,19 @@ if [ $stage -le 0 ]; then
 fi
 
 if [ $stage -le 1 ]; then
+  # Get a list of episode names
+  # TODO If we are working with the summer student data then use episode_list.py
+  # otherwise people should provide the list of filenames they want for their
+  # corpus, perhaps the filenames within the audio directory are correct
+  python3 scripts/episode_list.py > $recording_list
+  # Check for missing episode files
+  # Using the episode list check if a directory has multiple files of the same name
+  # TODO: if so, # ask the user which file to keep
+  python3 scripts/validate_data_dir.py -r $recording_list
+fi
 
+if [ $stage -le 2 ]; then
+  exit 0
   mkdir -p $data/corpus/json
 
   cp ./rttm_gecko/* $data/corpus/rttm

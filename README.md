@@ -55,3 +55,7 @@ If have kaldi setup the run local/make_ruvdi.sh, fix_data_dir & utils/validate_d
 1. Run the kaldi recipe and split_rttm (I'll need to supply this file). Add them to the callhome_rttm directory.
 26. Run the kaldi recipe (kaldi-speaker-diarization/v4) to evaluate the new DER% with the increased data.
 10. Create a script which creates new segments based on 2-6 speaker turns which looks like the current corpus but with those new audio files. 
+
+# Acknowledgements
+
+This project was funded by the the Icelandic [Directorate of Labour](https://vinnumalastofnun.is/)'s student summer job program in 2020.

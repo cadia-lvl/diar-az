@@ -67,6 +67,9 @@ def tmstmp_scnds(line):
       return []
 
 #Gets the audio filename
+# NOTE: this function fails if the files were in an windows archive and
+# unzipped to a linux machine without specifying the encoding of the original
+# archive
 def get_audio_filename(filename, os):
     base = os.path.basename(filename)
     (filename, ext) = os.path.splitext(base)
