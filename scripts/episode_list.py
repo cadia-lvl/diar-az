@@ -9,7 +9,7 @@ def main():
     delimiter='\t'))
     # remove the signup header
     episodes.pop(0)
-    correctedEpisodes = []
+    episodes.sort()
     for episode in episodes:
         if episode[2] or episode[1]:
             print(episode[0])

@@ -63,20 +63,28 @@ if [ $stage -le 1 ]; then
   # otherwise people should provide the list of filenames they want for their
   # corpus, perhaps the filenames within the audio directory are correct
   python3 scripts/episode_list.py > $recording_list
+
+  cp $recording_list $data/gecko/.backup/.
   # Check for missing episode files
   # Using the episode list check if a directory has multiple files of the same name
   # TODO: if so, # ask the user which file to keep
   python3 scripts/validate_data_dir.py -r $recording_list
+  exit 0
 fi
 
 if [ $stage -le 2 ]; then
-  exit 0
   mkdir -p $data/corpus/json
+  mkdir -p $data/temp/{rttm,segments,json,csv}
 
-  cp ./rttm_gecko/* $data/corpus/rttm
-  cp ./srt_gecko/* $data/corpus/segments
+  cp $data/gecko/corrected_rttm/* $data/temp/rttm
+  cp $data/gecko/srt/* $data/temp/segments
+  cp $data/gecko/json/* $data/temp/json
+  cp $data/gecko/csv/* $data/temp/csv
+fi
+
+if [ $stage -le 3 ]; then
   touch gecko_rttm2rttm.log
-  # Renames corresponding files if they exist and update the readme file
+  # TODO: TEST THIS NEXT!!! Renames corresponding files if they exist and update the readme file
   python3 scripts/gecko_rttm2rttm.py | cat - gecko_rttm2rttm.log > temp && mv temp gecko_rttm2rttm.log
   # Adds the date to the readme file
   date | cat - gecko_rttm2rttm.log > temp && mv temp gecko_rttm2rttm.log
