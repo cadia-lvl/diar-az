@@ -149,6 +149,7 @@ def trim_srt(gecko_srt, srt_folder, rttm_lines, os):
     print("The file {} has been trimmed of non-speech segments".format(base))
 
 # Removes []+number stuff and number+[] stuff
+# TODO: remove segments which are only [] stuff
 def trim_rttm(gecko_rttm, rttm_folder, os):
     base = os.path.basename(gecko_rttm)
     contents = ""

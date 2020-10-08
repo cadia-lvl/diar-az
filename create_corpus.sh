@@ -24,7 +24,7 @@ text_archive=$1
 audio_directory=$2
 data=data
 recording_list=$data/episode_list.txt
-stage=2
+stage=4
 
 mkdir -p $data/gecko/.backup
 
@@ -88,14 +88,39 @@ if [ $stage -le 3 ]; then
   touch gecko_rttm2rttm.log
   # Renames rttm, srt, and json corresponding files if they exist
   # Convert second column of rttm file to the audio filename
-  # Creates segments files in data/segments
+  # Removes [xxx] within rttm segments with X+[xxx]
+  # Creates segments files in data/segments TODO: create them in the right dir
   # TODO: test if this is done correctly: Removes non speech segments from srt file
   # TODO: TEST IF IT DOES THIS updates the readme file
-  # TODO: also rename the csv files
   python3 scripts/gecko_rttm2rttm.py | cat - gecko_rttm2rttm.log > temp && mv temp gecko_rttm2rttm.log
+fi
+
+if [ $stage -le 4 ]; then
+  # 4882758R10.csv has a completely different encoding than everything else and
+  # within it's already corrupt so it was handled manually
+  for c in data/tempcsv/csv/*.csv; do
+    # change semicolons to commas
+    sed -i 's/;/,/g' "$c";
+    # convert windows line endings to unix
+    sed -i 's/\r$//g' "$c";
+    # add new line to end of file
+    sed -i -e '$a\' "$c";
+    # remove bom encoding
+    sed -i $'1s/^\uFEFF//' "$c";
+  done
+
+  cat data/tempcsv/csv/* > $data/reco2spk_num2spk_name.csv
+  # remove lines with only the delimiter
+  # remove empty lines, with or without spaces
+  # remove trailing commas
+  sed -i -e '/,,/d' -e '/^ *$/d' -e 's/,$//' $data/reco2spk_num2spk_name.csv
+
+  # Only correct spelling errors and create the csv files
+  python3 scripts/gecko_rttm2rttm.py --only_csv 'True' --create_csv $data/reco2spk_num2spk_name.csv --statistics_off 'True' --update_ruv_di_readme_off 'True'
   exit 0
+fi
+
+if [ $stage -le 5 ]; then
   # Adds the date to the readme file
   date | cat - gecko_rttm2rttm.log > temp && mv temp gecko_rttm2rttm.log
-  # Only correct spelling errors and create the csv file
-  python3 scripts/gecko_rttm2rttm.py --only_csv 'True'
 fi
