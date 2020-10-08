@@ -9,6 +9,13 @@ Csv file creation was added to [Gecko](https://github.com/judyfong/gecko/pull/1)
 
 It is assumed that the corpus data will exist within a local data directory.
 
+# Installation
+
+Before using the scripts in diar-az you must install the Levenshtein package
+`pip install python-Levenshtein`
+or if you're using conda environments:
+`conda install python-Levenshtein`
+
 ## Running
 
 In order to run all the steps do the following:
