@@ -27,7 +27,8 @@ def validate(dircontents, dirname, recordingIds):
     return recordingIds
 
 
-#validates json, rttm, csv and srt directories
+# Validates json, rttm, csv and srt directories
+# and returns list of good recording ids
 def validateDataDirs(recordingIds):
     import os
     json = 'data/gecko/json'
@@ -56,17 +57,17 @@ def validateDataDirs(recordingIds):
     # This becomes the final recording list
     recordingIds = list(set.intersection(
         *[set(x) for x in validRecordingIds]))
-    # TODO: the filename shouldn't be hardcoded
     recordingIds.sort()
-    with open('data/episode_list_test.txt', 'w') as fout:
-        print(*recordingIds, sep='\n', file=fout)
+    return recordingIds
 
 def main(filename):
     import os
 
     with open(filename) as f:
         recordingIds = [line.rstrip('\n') for line in f]
-    validateDataDirs(recordingIds)
+    recordingIds = validateDataDirs(recordingIds)
+    with open(filename, 'w') as f:
+        print(*recordingIds, sep='\n', file=f)
 
 if __name__ == '__main__':
     # Pass in arguments with import argparse
