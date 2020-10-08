@@ -7,8 +7,6 @@
 #SBATCH --nodelist=terra
 
 
-# TODO: gecko_rtt2rttm.log
-
 set -eu -o pipefail
 
 if [ "$#" -eq 0 ] || [ "$1" == "-h" ]; then
@@ -26,7 +24,7 @@ text_archive=$1
 audio_directory=$2
 data=data
 recording_list=$data/episode_list.txt
-stage=1
+stage=2
 
 mkdir -p $data/gecko/.backup
 
@@ -69,7 +67,10 @@ if [ $stage -le 1 ]; then
   # Using the episode list check if a directory has multiple files of the same name
   # TODO: if so, # ask the user which file to keep
   python3 scripts/validate_data_dir.py -r $recording_list
-  exit 0
+
+  # TODO: remove the example.csv file if it exists
+  # TODO: make sure that each directory has the same number of files. throw an
+  # errors if the number of files differ
 fi
 
 if [ $stage -le 2 ]; then
@@ -83,9 +84,16 @@ if [ $stage -le 2 ]; then
 fi
 
 if [ $stage -le 3 ]; then
+  # TODO: gecko_rtt2rttm.log
   touch gecko_rttm2rttm.log
-  # TODO: TEST THIS NEXT!!! Renames corresponding files if they exist and update the readme file
+  # Renames rttm, srt, and json corresponding files if they exist
+  # Convert second column of rttm file to the audio filename
+  # Creates segments files in data/segments
+  # TODO: test if this is done correctly: Removes non speech segments from srt file
+  # TODO: TEST IF IT DOES THIS updates the readme file
+  # TODO: also rename the csv files
   python3 scripts/gecko_rttm2rttm.py | cat - gecko_rttm2rttm.log > temp && mv temp gecko_rttm2rttm.log
+  exit 0
   # Adds the date to the readme file
   date | cat - gecko_rttm2rttm.log > temp && mv temp gecko_rttm2rttm.log
   # Only correct spelling errors and create the csv file

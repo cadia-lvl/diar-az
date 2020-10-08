@@ -97,9 +97,9 @@ def rename(dircontents, dirname, os):
 
 # Renames Json, Rttm and srt files
 def rnm_json_rttm_srt(os):
-    json = 'json'
-    rttm = 'rttm'
-    segments = 'segments'
+    json = 'data/temp/json'
+    rttm = 'data/temp/rttm'
+    segments = 'data/temp/segments'
 
     if os.path.exists(json):
         json_files = os.listdir(json)
@@ -126,6 +126,10 @@ def checkArguments(args):
         exit(0)
 
 # Trims the srt file - removes segments that don't have any speech
+# TODO: srt segments should also be renumbered so there are no gaps in
+# numberings
+# TODO: check if the correct segment is removed even if there are 2 segments in
+# the rttm file for one segment in the srt file
 def trim_srt(gecko_srt, srt_folder, rttm_lines, os):
     base = os.path.basename(gecko_srt)
     segment_id = 0
@@ -142,7 +146,7 @@ def trim_srt(gecko_srt, srt_folder, rttm_lines, os):
 
     with open(srt_folder+gecko_srt, 'w') as srt_file:
         print(segment, end='\n', file=srt_file)
-    print("The file {} has been trimmed".format(base))
+    print("The file {} has been trimmed of non-speech segments".format(base))
 
 # Removes []+number stuff and number+[] stuff
 def trim_rttm(gecko_rttm, rttm_folder, os):
@@ -156,6 +160,7 @@ def trim_rttm(gecko_rttm, rttm_folder, os):
         for line in rttm_file:
             line = rm_brckts_spker_rttm(line, audiofilename)
             if(line != None):
+                # Replace second field of the rttm files to the audiofilename
                 second_field = line.split()[1]
                 line = line.replace(second_field, audiofilename, 1)
                 contents = contents + line
@@ -272,8 +277,10 @@ def update_ruv_di_readme(ruv_di_readme, statistics_indicator, csv_info_file):
 
 # Feeds the create_segments script of srt files
 def create_segments(os):
-    srt_folder = 'segments/'
+    srt_folder = 'data/temp/segments/'
     srt_files = os.listdir(srt_folder)
+    # TODO: segment files should be in srt_folder and without the episode
+    # folder. Currently they're created in data/segments
 
     for filename in srt_files:
         create_segments_and_text.main("{}/{}".format(srt_folder, filename))
@@ -281,14 +288,15 @@ def create_segments(os):
 def main():
     import os
     rttm_lines = []
-    srt_folder = 'segments/'
-    rttm_folder = 'rttm/'
+    srt_folder = 'data/temp/segments/'
+    rttm_folder = 'data/temp/rttm/'
     rnm_json_rttm_srt(os)
     # for each file in srt folder and for each file in rttm folder
     srt_files = sorted(os.listdir(srt_folder))
     rttm_files = sorted(os.listdir(rttm_folder))
 
     # Taking usage of the fact there is a rttm file for each srt file
+    # TODO: check if srt segments really do correspond exactly to rttm segments
     for filename_enum in enumerate(rttm_files):
         line_number = filename_enum[0]
         rttm_file = filename_enum[1]
@@ -300,16 +308,26 @@ def main():
     create_segments(os)
 if __name__ == '__main__':
     import argparse
-    parser = argparse.ArgumentParser(description='Optional arguments that are possible to provide, depending on what is needed to be done. \
-        If none arguments are provided the script will only rename the corresponding files if they exist and update the readme file')
-    parser.add_argument('--rttm', required=False, help='the path to the rttm-file')
-    parser.add_argument('--srt', required=False, help='the path to the srt-file')
-    parser.add_argument('--statistics', required=False, default='../reco2spk_num2spk_info.csv', help='the path to the CSV file')
-    parser.add_argument('--statistics_off', required=False, default='false', help='log the statistics on/off')
-    parser.add_argument('--create_csv', required=False, default='../reco2spk_num2spk_name.csv', help='the path to the CSV file')
-    parser.add_argument('--ruv_di_readme', required=False, default='./ruv-di_README', help='Ruv-di readme file path')
-    parser.add_argument('--update_ruv_di_readme_off', required=False, default='false', help='Update Ruv-di readme on/off')
-    parser.add_argument('--only_csv', default='false', help='Only correct spelling errors and create the CSV file')
+    parser = argparse.ArgumentParser(description='''Optional arguments that
+        are possible to provide, depending on what is needed to be done.
+        If no arguments are provided the script will only rename the
+        corresponding files if they exist and update the readme file''')
+    parser.add_argument('--rttm', required=False,
+        help='the path to the rttm-file')
+    parser.add_argument('--srt', required=False,
+        help='the path to the srt-file')
+    parser.add_argument('--statistics', required=False,
+        default='../reco2spk_num2spk_info.csv', help='the path to the CSV file')
+    parser.add_argument('--statistics_off', required=False,
+        default='false', help='log the statistics on/off')
+    parser.add_argument('--create_csv', required=False,
+        default='../reco2spk_num2spk_name.csv', help='the path to the CSV file')
+    parser.add_argument('--ruv_di_readme', required=False,
+        default='./ruv-di_README', help='Ruv-di readme file path')
+    parser.add_argument('--update_ruv_di_readme_off', required=False,
+        default='false', help='Update Ruv-di readme on/off')
+    parser.add_argument('--only_csv', default='false',
+        help='Only correct spelling errors and create the CSV file')
     args = parser.parse_args()
     checkArguments(args)
     main()
