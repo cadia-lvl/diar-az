@@ -57,21 +57,28 @@ fi
 
 if [ $stage -le 1 ]; then
   # Get a list of episode names
-  # TODO If we are working with the summer student data then use episode_list.py
-  # otherwise people should provide the list of filenames they want for their
-  # corpus, perhaps the filenames within the audio directory are correct
-  python3 scripts/episode_list.py > $recording_list
+  # If we are working with the summer student data then use episode_list.py
+  # otherwise people should modify recording_list to reference the list of
+  # filenames they want for their corpus. Perhaps the filenames within the
+  # audio directory are correct
+  if [ ! -f $recording_list ]; then
+    python3 scripts/episode_list.py > $recording_list
+  fi
+
+  # Remove the example.csv file if it exists
+  if [ -f $data/gecko/csv/example.csv ]; then
+    rm $data/gecko/csv/example.csv
+  fi
 
   cp $recording_list $data/gecko/.backup/.
   # Check for missing episode files
-  # Using the episode list check if a directory has multiple files of the same name
+  # Using the episode list check if a directory has multiple files with the
+  # same recording id
   # TODO: if so, # ask the user which file to keep
   python3 scripts/validate_data_dir.py -r $recording_list
 
-  # TODO: remove the example.csv file if it exists
-  # rm $data/gecko/csv/example.csv
   # TODO: make sure that each directory has the same number of files. throw an
-  # errors if the number of files differ
+  # error if the number of files differ
 fi
 
 if [ $stage -le 2 ]; then
