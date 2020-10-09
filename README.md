@@ -7,7 +7,27 @@ There are two goals when automating the diarization process:
 
 Csv file creation was added to [Gecko](https://github.com/judyfong/gecko/pull/1) to allow for anonymous and named speaker names. You need to use this version of gecko or a fork of it to create the diarization corpus type specified here.
 
-It is assumed that the corpus data will exist within a local data directory.
+It is assumed that the corpus data will exist within the data directory specified at the top of the [create_corpus](create_corpush.sh) bash script.
+
+# Background
+
+The corpus has the following format:
+```                corpus-root
+                       README.txt
+                       reco2spk_num2spk_label.csv
+                       rttm/
+                       json/
+                       segments/
+                       wav/
+```
+
+The gecko archive should have the following format:
+```                gecko-root
+                       corrected_rttm/
+                       json/
+                       srt/
+                       csv/
+```
 
 # Installation
 
@@ -35,17 +55,6 @@ to see the filenames
 
 # Notes
 Everything but the people name validation should be done by calling just one script. This script can call other scripts but the user should only have to call one. So possibly two scripts.
-
-
-The corpus has the following:
-```                corpus-root
-                       README.txt
-                       reco2spk_num2spk_label.csv
-                       rttm/
-                       json/
-                       segments/
-                       wav/
-```
 
 You do not need to concern yourself with the wav folder for this project. Assume you'll be working on directory above the corpus.
 
@@ -76,6 +85,7 @@ in rttm files identify 1.[noise], + and crosstalk
 in rttm files, spot segments which are missing speaker ids
 Use `sort -k3,3 -t, filename.csv` to look for longer name mistakes
 Use `sort -k3,3 -u -t, filename.csv` if you only want one occurance of each name
+preserve existing spk_labels
 
 # Acknowledgements
 
