@@ -21,9 +21,14 @@ fi
 # NOTE: consider using the kaldi parse_options script to make stage a parameter option
 
 text_archive=$1
+# TODO: is audio_directory really needed as file option?
 audio_directory=$2
+
+# TODO: allow the user to pass these in as options
 data=data
 recording_list=$data/episode_list.txt
+combined_csv=$data/reco2spk_num2spk_name.csv
+
 stage=4
 
 mkdir -p $data/gecko/.backup
@@ -94,12 +99,30 @@ fi
 if [ $stage -le 3 ]; then
   # TODO: gecko_rtt2rttm.log
   touch gecko_rttm2rttm.log
+
+  # SEGMENTS
+  # TODO: segment files should be in srt_folder and without the episode
+  # folder. Currently they're created in data/segments
+  # TODO: check if srt segments really do correspond exactly to rttm segments
+  # TODO: check if the correct segment is removed even if there are 2 segments
+  # in the rttm file for one segment in the srt file
+  # TODO: test if this is done correctly: Removes non speech segments from srt
+  # file
+  # TODO: srt segments should also be renumbered so there are no gaps in
+  # numberings
+
+  # RTTM
+  # TODO: remove segments which are only [] stuff
+  # TODO: in rttm files, spot segments which are missing speaker ids
+  # TODO: in rttm files identify 1.[noise], + and crosstalk and deal with them
+
+  # CORPUS README
+  # TODO: TEST IF IT DOES THIS updates the readme file
+
   # Renames rttm, srt, and json corresponding files if they exist
   # Convert second column of rttm file to the audio filename
   # Removes [xxx] within rttm segments with X+[xxx]
-  # Creates segments files in data/segments TODO: create them in the right dir
-  # TODO: test if this is done correctly: Removes non speech segments from srt file
-  # TODO: TEST IF IT DOES THIS updates the readme file
+  # Creates segments files in data/segments
   python3 scripts/gecko_rttm2rttm.py | cat - gecko_rttm2rttm.log > temp && mv temp gecko_rttm2rttm.log
 fi
 
@@ -117,16 +140,14 @@ if [ $stage -le 4 ]; then
     sed -i $'1s/^\uFEFF//' "$c";
   done
 
-  # TODO: allow for there to be an already existing reco2spk_num2spk_name.csv file
-
-  cat $data/temp/csv/* >> $data/reco2spk_num2spk_name.csv
+  cat $data/temp/csv/* >> $combined_csv
   # remove lines with only the delimiter
   # remove empty lines, with or without spaces
   # remove trailing commas
-  sed -i -e '/,,/d' -e '/^ *$/d' -e 's/,$//' $data/reco2spk_num2spk_name.csv
+  sed -i -e '/,,/d' -e '/^ *$/d' -e 's/,$//' $combined_csv
 
   # Only correct spelling errors and create the csv files
-  python3 scripts/gecko_rttm2rttm.py --only_csv 'True' --create_csv $data/reco2spk_num2spk_name.csv --statistics_off 'True' --update_ruv_di_readme_off 'True'
+  python3 scripts/gecko_rttm2rttm.py --only_csv 'True' --create_csv $combined_csv --statistics_off 'True' --update_ruv_di_readme_off 'True'
   exit 0
 fi
 
@@ -134,5 +155,5 @@ if [ $stage -le 5 ]; then
   # Adds the date to the readme file
   date | cat - gecko_rttm2rttm.log > temp && mv temp gecko_rttm2rttm.log
   # TODO: TEST Create the statistics and update the readme
-  python3 scripts/gecko_rttm2rttm.py --only_csv 'True' --create_csv $data/reco2spk_num2spk_name.csv
+  python3 scripts/gecko_rttm2rttm.py --only_csv 'True' --create_csv $combined_csv
 fi
