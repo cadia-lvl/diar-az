@@ -59,13 +59,9 @@ Do not commit any files or information that is specific to this corpus, e.g. nam
 - [x] 3. Rename the rttm/json/srt files themselves to just the audio filename.
 - [ ] 4. Also include the command to call [create_segments_and_text.py](https://github.com/cadia-lvl/broadcast_data_prep/blob/master/ruv/create_segments_and_text.py). It might be difficult due to where the resulting files are created. If so, then will need to generalize the python file. Do this and create a pull-request.
 - [ ] 5. Generate text file with the updated corpus numbers in the corpus readme. If know how to, then also autoreplaces the values in the readme.
-
-### Other tasks
-- [ ] 1. Create a csv file like in the corpus`<audio-filename>,<spk-num>,<speaker label>`. This involves pairing up all the written names across files then matching them up with the existing spkIds or creating new ones for new speakers. This needs to be done with unknowns too but they also need to be renamed to the next numbered unknown available.
-- [ ] 2. Also create `<audio-filename>,<spk-num>,<speaker name>,<speaker label>`
-- [ ] 3. Allow there to be 1-3 spelling mistakes in the names which will then be manually validated and corrected.
-
-
+- [X] 6. Create a csv file like in the corpus`<audio-filename>,<spk-num>,<speaker label>`. This involves pairing up all the written names across files then creating new speaker labels for speakers. This needs to be done with unknowns too but they also need to be renamed to the next numbered unknown available.
+- [X] 7. Also create `<audio-filename>,<spk-num>,<speaker name>,<speaker label>`
+- [X] 8. Allow there to be 1-3 spelling mistakes in the names which will then be manually validated and corrected.
 
 ## Possible tasks if the above are done
 If have kaldi setup the run local/make_ruvdi.sh, fix_data_dir & utils/validate_data_dir.sh
