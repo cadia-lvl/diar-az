@@ -18,9 +18,9 @@ def creating_id(spk_type, spkr_number):
 #   the script will correct spelling mistakes when it isn't supposed to do so.
 # So manual verification is needed, but only for these lines
 #   that actually may have spelling errors.
-#   Also, if the name is not unknown but contains a number then something is off
-# TODO: handle names with apostrophes
+# Also, if the name is not unknown but contains a number then something is off
 def manual_correction(old_name, new_name):
+    # Also handle names with apostrophes
     if(old_name == new_name and old_name
         .replace(" ","")
         .replace("-","")
@@ -71,7 +71,6 @@ def correct_spelling_mistakes(row, contents, corrected):
     return (name, row[1][2], row)
 
 def main(name_file, correct_spelling):
-# TODO: account for callhome and _ruvdix and spaces before the speaker number
     import csv
     spk_ids = {}
     with open(name_file) as \
@@ -91,11 +90,16 @@ def main(name_file, correct_spelling):
 
         for row in enumerate(contents):
             name = row[1][2]
-            recording_id = row[1][0]
-            spk_num = row[1][1]
-            # TODO: allow for all spellings of unknown: lowercase, with
-            # numbers, uppercase, all caps
-            if("Unknown" not in name.split()[0]):
+            # Account for the fact that there might be other identifiers before
+            # and/or after the recording id/episode. Those should end with
+            # {-,_} or start with it. Also, assume the recording id is the
+            # second field of this string.
+            recording_id = row[1][0].split("-")[1].split("_")[0]
+            # Remove whitespace around the spk_num
+            spk_num = (row[1][1]).strip()
+            # Allow for all spellings of unknown: lowercase, with numbers,
+            # uppercase, all caps
+            if("Unknown".lower() not in (name.split()[0]).lower()):
                 if(correct_spelling == "True"):
                     correction = correct_spelling_mistakes(row, contents, corrected)
                     old_name =  correction[0]
@@ -105,11 +109,11 @@ def main(name_file, correct_spelling):
                 if(name not in spk_ids):
                     spk_ids[name] = creating_id("SPK", known_spkr_number)
                     known_spkr_number = known_spkr_number + 1
-                print(recording_id.split("-")[1], spk_num, spk_ids[name], sep=',', file=spk_label)
-                print(recording_id.split("-")[1], spk_num, name, spk_ids[name], sep=',', file=spk_info)
+                print(recording_id, spk_num, spk_ids[name], sep=',', file=spk_label)
+                print(recording_id, spk_num, name, spk_ids[name], sep=',', file=spk_info)
             else:
                 if(correct_spelling == "True"):
-                    episode = recording_id.split("-")[1]
+                    episode = recording_id
                     episodes.sort()
                     if(episode in episodes):
                         unknown_spkr_number = unknown_spkr_number + 1
@@ -117,8 +121,8 @@ def main(name_file, correct_spelling):
                         episodes.append(episode)
                         unknown_spkr_number = 1
                 unknown = "Unknown {0:0=2d}".format(unknown_spkr_number)
-                print(recording_id.split("-")[1], spk_num, unknown, creating_id("UNK", unk_num ), sep=',', file=spk_info)
-                print(recording_id.split("-")[1], spk_num, creating_id("UNK", unknown_spkr_number), sep=',', file=spk_label)
+                print(recording_id, spk_num, unknown, creating_id("UNK", unk_num ), sep=',', file=spk_info)
+                print(recording_id, spk_num, creating_id("UNK", unknown_spkr_number), sep=',', file=spk_label)
                 unk_num = unk_num + 1
 
     if(correct_spelling == "True"):

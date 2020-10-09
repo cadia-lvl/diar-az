@@ -98,7 +98,7 @@ fi
 if [ $stage -le 4 ]; then
   # 4882758R10.csv has a completely different encoding than everything else and
   # within it's already corrupt so it was handled manually
-  for c in data/tempcsv/csv/*.csv; do
+  for c in data/temp/csv/*.csv; do
     # change semicolons to commas
     sed -i 's/;/,/g' "$c";
     # convert windows line endings to unix
@@ -109,7 +109,7 @@ if [ $stage -le 4 ]; then
     sed -i $'1s/^\uFEFF//' "$c";
   done
 
-  cat data/tempcsv/csv/* > $data/reco2spk_num2spk_name.csv
+  cat data/temp/csv/* > $data/reco2spk_num2spk_name.csv
   # remove lines with only the delimiter
   # remove empty lines, with or without spaces
   # remove trailing commas
@@ -123,4 +123,6 @@ fi
 if [ $stage -le 5 ]; then
   # Adds the date to the readme file
   date | cat - gecko_rttm2rttm.log > temp && mv temp gecko_rttm2rttm.log
+  # TODO: TEST Create the statistics and update the readme
+  python3 scripts/gecko_rttm2rttm.py --only_csv 'True' --create_csv $data/reco2spk_num2spk_name.csv
 fi
