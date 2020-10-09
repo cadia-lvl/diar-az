@@ -119,9 +119,6 @@ if [ $stage -le 3 ]; then
   # TODO: in rttm files, spot segments which are missing speaker ids
   # TODO: in rttm files identify 1.[noise], + and crosstalk and deal with them
 
-  # CORPUS README
-  # TODO: TEST IF IT DOES THIS updates the readme file
-
   # Renames rttm, srt, and json corresponding files if they exist
   # Convert second column of rttm file to the audio filename
   # Removes [xxx] within rttm segments with X+[xxx]

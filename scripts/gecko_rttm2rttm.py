@@ -312,7 +312,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='''Optional arguments that
         are possible to provide, depending on what is needed to be done.
         If no arguments are provided the script will only rename the
-        corresponding files if they exist and update the readme file''')
+        corresponding files if they exist and create segments''')
     parser.add_argument('--statistics', required=False,
         default='data/temp/reco2spk_num2spk_info.csv', help='the path to the CSV file')
     parser.add_argument('--statistics_off', required=False,
@@ -324,7 +324,7 @@ if __name__ == '__main__':
     parser.add_argument('--update_ruv_di_readme_off', required=False,
         default='False', help='Update Ruv-di readme on/off')
     parser.add_argument('--only_csv', default='False',
-        help='Only correct spelling errors and create the CSV file')
+        help='Correct spelling, create CSV, statistics, and update corpus readme')
     args = parser.parse_args()
     checkArguments(args)
     main()
