@@ -1,8 +1,11 @@
+/csv/
 /rttm/
 /segments/
 /json/
 /wav/
 /data/
+data/
+logs/
 /__pycache__/
 /rttm_gecko/
 /srt_gecko/
