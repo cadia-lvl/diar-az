@@ -69,6 +69,7 @@ if [ $stage -le 1 ]; then
   python3 scripts/validate_data_dir.py -r $recording_list
 
   # TODO: remove the example.csv file if it exists
+  # rm $data/gecko/csv/example.csv
   # TODO: make sure that each directory has the same number of files. throw an
   # errors if the number of files differ
 fi
@@ -97,7 +98,7 @@ fi
 
 if [ $stage -le 4 ]; then
   # 4882758R10.csv has a completely different encoding than everything else and
-  # within it's already corrupt so it was handled manually
+  # within it's already corrupt so it was corrected manually up until this stage
   for c in data/temp/csv/*.csv; do
     # change semicolons to commas
     sed -i 's/;/,/g' "$c";
@@ -109,7 +110,9 @@ if [ $stage -le 4 ]; then
     sed -i $'1s/^\uFEFF//' "$c";
   done
 
-  cat data/temp/csv/* > $data/reco2spk_num2spk_name.csv
+  # TODO: allow for there to be an already existing reco2spk_num2spk_name.csv file
+
+  cat data/temp/csv/* >> $data/reco2spk_num2spk_name.csv
   # remove lines with only the delimiter
   # remove empty lines, with or without spaces
   # remove trailing commas
