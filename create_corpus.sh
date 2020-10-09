@@ -12,7 +12,7 @@ set -eu -o pipefail
 if [ "$#" -eq 0 ] || [ "$1" == "-h" ]; then
     echo "This script creates files for a (diarization) corpus from Gecko files (json, rttm, srt)"
     echo "It must be run from the project's root directory"
-    echo "Usage: $0 <gecko archive> <audiodirectory>"
+    echo "Usage: $0 <gecko archive> <audio directory>"
     echo " e.g.: $0 gecko_files.zip /data/ruv_unprocessed/audio/"
     echo ""
     exit 1;
@@ -21,7 +21,6 @@ fi
 # NOTE: consider using the kaldi parse_options script to make stage a parameter option
 
 text_archive=$1
-# TODO: is audio_directory really needed as file option?
 audio_directory=$2
 
 # TODO: allow the user to pass these in as options
@@ -61,18 +60,23 @@ if [ $stage -le 0 ]; then
 fi
 
 if [ $stage -le 1 ]; then
+  # Remove the example.csv file if it exists
+  if [ -f $data/gecko/csv/example.csv ]; then
+    rm $data/gecko/csv/example.csv
+  fi
+
   # Get a list of episode names
   # If we are working with the summer student data then use episode_list.py
   # otherwise people should modify recording_list to reference the list of
   # filenames they want for their corpus. Perhaps the filenames within the
   # audio directory are correct
   if [ ! -f $recording_list ]; then
+    # TODO: use the directory filenames themselves. Do something like in
+    # scripts/gecko_rttm2rttm.rnm_json_rttm_srt but use it to print out a list
+    # of all recording_ids to a file
+    # make sure the recording_list has only unique ids
+    # might be able to combine this with validating directories
     python3 scripts/episode_list.py > $recording_list
-  fi
-
-  # Remove the example.csv file if it exists
-  if [ -f $data/gecko/csv/example.csv ]; then
-    rm $data/gecko/csv/example.csv
   fi
 
   cp $recording_list $data/gecko/.backup/.
@@ -80,10 +84,9 @@ if [ $stage -le 1 ]; then
   # Using the episode list check if a directory has multiple files with the
   # same recording id
   # TODO: if so, # ask the user which file to keep
-  python3 scripts/validate_data_dir.py -r $recording_list
-
   # TODO: make sure that each directory has the same number of files. throw an
   # error if the number of files differ
+  python3 scripts/validate_data_dir.py -r $recording_list
 fi
 
 if [ $stage -le 2 ]; then
@@ -156,4 +159,9 @@ if [ $stage -le 5 ]; then
   date | cat - gecko_rttm2rttm.log > temp && mv temp gecko_rttm2rttm.log
   # TODO: TEST Create the statistics and update the readme
   python3 scripts/gecko_rttm2rttm.py --only_csv 'True' --create_csv $combined_csv
+fi
+
+if [ $stage -le 6 ]; then
+  exit 0
+  cp $audio_directory/* $data/corpus/wav
 fi
