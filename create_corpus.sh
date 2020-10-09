@@ -5,13 +5,14 @@
 #
 #SBATCH --output=logs/create_corpus_%J.log
 #SBATCH --nodelist=terra
-# TODO: change all references to temp to corpus
+# TODO: change references to temp to corpus
 
 
 set -eu -o pipefail
 
 if [ "$#" -eq 0 ] || [ "$1" == "-h" ]; then
-    echo "This script creates files for a (diarization) corpus from Gecko files (json, rttm, srt)"
+    echo "This script creates files for a (diarization) corpus from Gecko"
+    echo "files(json, rttm, srt)."
     echo "It must be run from the project's root directory"
     echo "Usage: $0 <gecko archive> <audio directory>"
     echo " e.g.: $0 gecko_files.zip /data/ruv_unprocessed/audio/"
@@ -19,7 +20,8 @@ if [ "$#" -eq 0 ] || [ "$1" == "-h" ]; then
     exit 1;
 fi
 
-# NOTE: consider using the kaldi parse_options script to make stage a parameter option
+# NOTE: consider using the kaldi parse_options script to make stage a parameter
+# option
 
 text_archive=$1
 audio_directory=$2
@@ -47,7 +49,7 @@ if [ $stage -le 0 ]; then
     unzip $text_archive -d $data/gecko/
   fi
 
-  # TODO: move corpus data to backup directory
+  # Move corpus data to backup directory
   mkdir -p $data/corpus/.backup
 
   for x in segments rttm; do
@@ -91,10 +93,6 @@ if [ $stage -le 1 ]; then
 fi
 
 if [ $stage -le 2 ]; then
-  # move temp data to backup directory
-  # mkdir -p $data/temp/.backup
-  # mv $data/temp/* $data/temp/.backup/.
-
   mkdir -p $data/corpus/json
   mkdir -p $data/temp/{rttm,srt,text,segments,json,csv}
 
@@ -107,6 +105,7 @@ fi
 if [ $stage -le 3 ]; then
   # SEGMENTS
   # TODO: check if srt segments really do correspond exactly to rttm segments
+  # (check by walking through a file or using gecko and rttm file)
   # TODO: check if the correct segment is removed even if there are 2 segments
   # in the rttm file for one segment in the srt file
   # TODO: test if this is done correctly: Removes non speech segments from srt
@@ -116,12 +115,16 @@ if [ $stage -le 3 ]; then
   # TODO: remove segments which are only [] stuff
   # TODO: in rttm files, spot segments which are missing speaker ids
   # TODO: in rttm files identify 1.[noise], + and crosstalk and deal with them
+  # TODO: identify segments/files which have something other than
+  # [0-9]+\(\+\[[a-z]+\]\) or a plain number, a num+[tag], [tag]+num and output
+  # the filename
 
   # Renames rttm, srt, and json corresponding files if they exist
   # Convert second column of rttm file to the audio filename
   # Removes [xxx] within rttm segments with X+[xxx]
   # Creates segments files in data/temp/segments
   python3 scripts/gecko_rttm2rttm.py > gecko_rttm2rttm.log
+  exit 0
 fi
 
 if [ $stage -le 4 ]; then
@@ -145,8 +148,9 @@ if [ $stage -le 4 ]; then
   sed -i -e '/,,/d' -e '/^ *$/d' -e 's/,$//' $combined_csv
 
   # Only correct spelling errors and create the csv files
-  python3 scripts/gecko_rttm2rttm.py --only_csv 'True' --create_csv $combined_csv --statistics_off 'True' --update_ruv_di_readme_off 'True'
-  exit 0
+  python3 scripts/gecko_rttm2rttm.py --only_csv 'True' \
+    --create_csv $combined_csv --statistics_off 'True' \
+    --update_ruv_di_readme_off 'True'
 fi
 
 if [ $stage -le 5 ]; then
@@ -156,11 +160,14 @@ if [ $stage -le 5 ]; then
   # Adds the date to the readme file
   date | cat - gecko_rttm2rttm.log > temp && mv temp gecko_rttm2rttm.log
   # TODO: TEST Create the statistics and update the readme
-  python3 scripts/gecko_rttm2rttm.py --only_csv 'True' --create_csv $combined_csv
+  python3 scripts/gecko_rttm2rttm.py --only_csv 'True' \
+    --create_csv $combined_csv
 fi
 
 if [ $stage -le 6 ]; then
   exit 0
+  # TODO: Copy temp_dir segments,json,rttm directories to corpus then delete
+  # temp_dir
   cp $audio_directory/* $data/corpus/wav
   rm -rf $data/temp
 fi
