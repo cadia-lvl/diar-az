@@ -5,6 +5,7 @@
 #
 #SBATCH --output=logs/create_corpus_%J.log
 #SBATCH --nodelist=terra
+# TODO: change all references to temp to corpus
 
 
 set -eu -o pipefail
@@ -28,7 +29,7 @@ data=data
 recording_list=$data/episode_list.txt
 combined_csv=$data/reco2spk_num2spk_name.csv
 
-stage=4
+stage=2
 
 mkdir -p $data/gecko/.backup
 
@@ -90,29 +91,26 @@ if [ $stage -le 1 ]; then
 fi
 
 if [ $stage -le 2 ]; then
+  # move temp data to backup directory
+  # mkdir -p $data/temp/.backup
+  # mv $data/temp/* $data/temp/.backup/.
+
   mkdir -p $data/corpus/json
-  mkdir -p $data/temp/{rttm,segments,json,csv}
+  mkdir -p $data/temp/{rttm,srt,text,segments,json,csv}
 
   cp $data/gecko/corrected_rttm/* $data/temp/rttm
-  cp $data/gecko/srt/* $data/temp/segments
+  cp $data/gecko/srt/* $data/temp/srt
   cp $data/gecko/json/* $data/temp/json
   cp $data/gecko/csv/* $data/temp/csv
 fi
 
 if [ $stage -le 3 ]; then
-  # TODO: gecko_rtt2rttm.log
-  touch gecko_rttm2rttm.log
-
   # SEGMENTS
-  # TODO: segment files should be in srt_folder and without the episode
-  # folder. Currently they're created in data/segments
   # TODO: check if srt segments really do correspond exactly to rttm segments
   # TODO: check if the correct segment is removed even if there are 2 segments
   # in the rttm file for one segment in the srt file
   # TODO: test if this is done correctly: Removes non speech segments from srt
   # file
-  # TODO: srt segments should also be renumbered so there are no gaps in
-  # numberings
 
   # RTTM
   # TODO: remove segments which are only [] stuff
@@ -122,8 +120,8 @@ if [ $stage -le 3 ]; then
   # Renames rttm, srt, and json corresponding files if they exist
   # Convert second column of rttm file to the audio filename
   # Removes [xxx] within rttm segments with X+[xxx]
-  # Creates segments files in data/segments
-  python3 scripts/gecko_rttm2rttm.py | cat - gecko_rttm2rttm.log > temp && mv temp gecko_rttm2rttm.log
+  # Creates segments files in data/temp/segments
+  python3 scripts/gecko_rttm2rttm.py > gecko_rttm2rttm.log
 fi
 
 if [ $stage -le 4 ]; then
@@ -152,6 +150,9 @@ if [ $stage -le 4 ]; then
 fi
 
 if [ $stage -le 5 ]; then
+  # TODO: gecko_rtt2rttm.log
+  touch gecko_rttm2rttm.log
+
   # Adds the date to the readme file
   date | cat - gecko_rttm2rttm.log > temp && mv temp gecko_rttm2rttm.log
   # TODO: TEST Create the statistics and update the readme
@@ -161,4 +162,5 @@ fi
 if [ $stage -le 6 ]; then
   exit 0
   cp $audio_directory/* $data/corpus/wav
+  rm -rf $data/temp
 fi

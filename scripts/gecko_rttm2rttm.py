@@ -11,7 +11,7 @@
 # files if they exist and update the readme file
 
 from decimal import *
-import create_segments_and_text
+from create_segments_and_text import create_segm_and_text
 
 # Removes [something]+number (speaker number) and number+[something] - rttm files
 def rm_brckts_spker_rttm(line, audiofilename):
@@ -99,7 +99,7 @@ def rename(dircontents, dirname, os):
 def rnm_json_rttm_srt(os):
     json = 'data/temp/json'
     rttm = 'data/temp/rttm'
-    segments = 'data/temp/segments'
+    srt = 'data/temp/srt'
 
     if os.path.exists(json):
         json_files = os.listdir(json)
@@ -109,9 +109,9 @@ def rnm_json_rttm_srt(os):
         rttm_files = os.listdir(rttm)
         rename(rttm_files, rttm, os)
 
-    if os.path.exists(segments):
-        srt_files = os.listdir(segments)
-        rename(srt_files, segments, os)
+    if os.path.exists(srt):
+        srt_files = os.listdir(srt)
+        rename(srt_files, srt, os)
 
 # Checks the given arguments and calls the corresponding function
 def checkArguments(args):
@@ -181,15 +181,15 @@ def total_speech_time():
     import os
     total = 0
     segment_time = 0
-    segment_folder = "data/temp/segments"
-    segments_files = os.listdir(segment_folder)
+    srt_folder = "data/temp/srt"
+    srt_files = os.listdir(srt_folder)
     segment_time = [] # For sorting segment time for correct subtraction
     segment_cnt = 0
     fstcol = None
     lstcol = None
 
-    for segment_file in segments_files:
-        with open(segment_folder+"/"+segment_file) as srt_file:
+    for srt_segment_file in srt_files:
+        with open(srt_folder+"/"+srt_segment_file) as srt_file:
             for line in srt_file:
                 fstcol = line.split("\n")[0].split(' ')[0]
                 lstcol = line.split("\n")[0].split(' ')[-1]
@@ -278,18 +278,18 @@ def update_ruv_di_readme(ruv_di_readme, statistics_indicator, csv_info_file):
 
 # Feeds the create_segments script of srt files
 def create_segments(os):
-    srt_folder = 'data/temp/segments/'
+    srt_folder = 'data/temp/srt/'
     srt_files = os.listdir(srt_folder)
     # TODO: segment files should be in srt_folder and without the episode
     # folder. Currently they're created in data/segments
 
     for filename in srt_files:
-        create_segments_and_text.main("{}/{}".format(srt_folder, filename))
+        create_segm_and_text("{}/{}".format(srt_folder, filename), 'data/temp')
 
 def main():
     import os
     rttm_lines = []
-    srt_folder = 'data/temp/segments/'
+    srt_folder = 'data/temp/srt/'
     rttm_folder = 'data/temp/rttm/'
     rnm_json_rttm_srt(os)
     # for each file in srt folder and for each file in rttm folder
