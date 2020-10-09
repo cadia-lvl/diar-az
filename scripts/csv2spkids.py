@@ -3,8 +3,9 @@
 # <audio-filename>,<spk-num>,<speaker label> and
 # create CSV file on the form:
 # <audio-filename>,<spk-num>,<speaker name>,<speaker label>,
-#correct spelling mistakes
-# Install python-Levenshtein for detecting spelling mistakes: pip3 install python-Levenshtein
+# Correct spelling mistakes
+# Install python-Levenshtein for detecting spelling mistakes:
+# pip3 install python-Levenshtein
 
 from Levenshtein import distance
 from collections import Counter
@@ -70,11 +71,13 @@ def correct_spelling_mistakes(row, contents, corrected):
         row[1][2] = most_common
     return (name, row[1][2], row)
 
-def main(name_file, correct_spelling):
+def main(name_file, output_dir, correct_spelling):
     import csv
     spk_ids = {}
     with open(name_file) as \
-        csvfile, open('reco2spk_num2spk_label.csv', 'w') as spk_label, open('reco2spk_num2spk_info.csv', 'w') as spk_info:
+        csvfile, open(output_dir + 'reco2spk_num2spk_label.csv', 'w') as \
+        spk_label, open(output_dir + 'reco2spk_num2spk_info.csv', 'w') as \
+        spk_info:
         spkreader = csv.reader(csvfile, delimiter=',')
         known_spkr_number = 1
         unknown_spkr_number = 1
@@ -131,8 +134,13 @@ def main(name_file, correct_spelling):
 
 if __name__ == '__main__':
     import argparse
-    parser = argparse.ArgumentParser(description='The arguments need to be passed in.')
-    parser.add_argument('--file', default= "../reco2spk_num2spk_name.csv", help='the path to the file')
-    parser.add_argument('--correct_spelling', default="True", help='correct spelling mistakes on or off (True on False off)')
+    parser = argparse.ArgumentParser(description=
+        '''Create spk_info and spk_label csv files.''')
+    parser.add_argument('--input_file', default='../reco2spk_num2spk_name.csv',
+        help='the path to the input file')
+    parser.add_argument('--output_dir', default='data/corpus/',
+        help='the output directory for the spk_info and spk_label files')
+    parser.add_argument('--correct_spelling', default='True',
+        help='correct spelling mistakes on or off (True on False off)')
     args = parser.parse_args()
-    main(args.file, args.correct_spelling)
+    main(args.input_file, args.output_dir, args.correct_spelling)

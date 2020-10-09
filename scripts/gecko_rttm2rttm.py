@@ -174,7 +174,7 @@ def trim_rttm(gecko_rttm, rttm_folder, os):
 # Creates the csv file
 def create_csv(csv_filename):
     import csv2spkids # The csv script used to create the csv file
-    csv2spkids.main(csv_filename, "True")
+    csv2spkids.main(csv_filename, 'data/temp/', "True")
     print("CSV file have been created")
 
 def total_speech_time():
@@ -314,13 +314,13 @@ if __name__ == '__main__':
         If no arguments are provided the script will only rename the
         corresponding files if they exist and update the readme file''')
     parser.add_argument('--statistics', required=False,
-        default='../reco2spk_num2spk_info.csv', help='the path to the CSV file')
+        default='data/temp/reco2spk_num2spk_info.csv', help='the path to the CSV file')
     parser.add_argument('--statistics_off', required=False,
         default='False', help='log the statistics on/off')
     parser.add_argument('--create_csv', required=False,
-        default='../reco2spk_num2spk_name.csv', help='the path to the CSV file')
+        default='reco2spk_num2spk_name.csv', help='the path to the CSV file')
     parser.add_argument('--ruv_di_readme', required=False,
-        default='./ruv-di_README', help='Ruv-di readme file path')
+        default='data/temp/ruv-di_README', help='Ruv-di readme file path')
     parser.add_argument('--update_ruv_di_readme_off', required=False,
         default='False', help='Update Ruv-di readme on/off')
     parser.add_argument('--only_csv', default='False',
