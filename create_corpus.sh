@@ -99,7 +99,7 @@ fi
 if [ $stage -le 4 ]; then
   # 4882758R10.csv has a completely different encoding than everything else and
   # within it's already corrupt so it was corrected manually up until this stage
-  for c in data/temp/csv/*.csv; do
+  for c in $data/temp/csv/*.csv; do
     # change semicolons to commas
     sed -i 's/;/,/g' "$c";
     # convert windows line endings to unix
@@ -112,7 +112,7 @@ if [ $stage -le 4 ]; then
 
   # TODO: allow for there to be an already existing reco2spk_num2spk_name.csv file
 
-  cat data/temp/csv/* >> $data/reco2spk_num2spk_name.csv
+  cat $data/temp/csv/* >> $data/reco2spk_num2spk_name.csv
   # remove lines with only the delimiter
   # remove empty lines, with or without spaces
   # remove trailing commas
