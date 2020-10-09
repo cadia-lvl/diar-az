@@ -1,15 +1,15 @@
 # diar-az
-Diarization A to Z - Gecko to Kaldi and corpus and back
+Diarization A to Z - Kaldi to Gecko to Kaldi/corpus and back
 
 There are two goals when automating the diarization process:
 1. Adding to an existing diarization corpus
-2. Running the corpus through kaldi
+2. Using the corpus to train diarization models through Kaldi
 
 Csv file creation was added to [Gecko](https://github.com/judyfong/gecko/pull/1) to allow for anonymous and named speaker names. You need to use this version of gecko or a fork of it to create the diarization corpus type specified here.
 
-It is assumed that the corpus data will exist within the data directory specified at the top of the [create_corpus](create_corpush.sh) bash script.
+It is assumed that the corpus data will exist within the data directory specified at the top of the [create_corpus](create_corpus.sh) bash script.
 
-# Background
+## Background
 
 The corpus has the following format:
 ```                corpus-root
@@ -29,7 +29,7 @@ The gecko archive should have the following format:
                        csv/
 ```
 
-# Installation
+## Installation
 
 Before using the scripts in diar-az you must install the Levenshtein package
 `pip install python-Levenshtein`
@@ -53,7 +53,7 @@ to see the filenames
 
 `find data/ -maxdepth 3 -iname *4882718R8*`
 
-# Notes
+## Notes
 Everything but the people name validation should be done by calling just one script. This script can call other scripts but the user should only have to call one. So possibly two scripts.
 
 You do not need to concern yourself with the wav folder for this project. Assume you'll be working on directory above the corpus.
@@ -81,12 +81,15 @@ If have kaldi setup the run local/make_ruvdi.sh, fix_data_dir & utils/validate_d
 - [ ] 4. Create a script which creates new segments based on 2-6 speaker turns which looks like the current corpus but with those new audio files.
 
 ## TODO
-in rttm files identify 1.[noise], + and crosstalk
-in rttm files, spot segments which are missing speaker ids
-Use `sort -k3,3 -t, filename.csv` to look for longer name mistakes
-Use `sort -k3,3 -u -t, filename.csv` if you only want one occurance of each name
-preserve existing spk_labels
+- in rttm files identify 1.[noise], + and crosstalk
+- in rttm files, spot segments which are missing speaker ids
+- Use `sort -k3,3 -t, filename.csv` to look for longer name mistakes
+- Use `sort -k3,3 -u -t, filename.csv` if you only want one occurance of each name
+- preserve existing spk_labels
 
-# Acknowledgements
+## License
+This project is licensed under [Apache 2.0](License).
+
+## Acknowledgements
 
 This project was funded by the the Icelandic [Directorate of Labour](https://vinnumalastofnun.is/)'s student summer job program in 2020.
