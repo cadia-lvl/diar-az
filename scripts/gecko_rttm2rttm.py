@@ -14,6 +14,8 @@ from decimal import *
 from create_segments_and_text import create_segm_and_text
 
 # Removes [something]+number (speaker number) and number+[something] - rttm files
+# Remove segments which are only [] stuff
+# Identify segments which have no speaker label
 def rm_brckts_spker_rttm(line, audiofilename):
 
     if(line != '\n'):
@@ -24,10 +26,13 @@ def rm_brckts_spker_rttm(line, audiofilename):
         if "]+" in spkridOrBracketStuff:
             removed = line.replace ( line[ bgnbrackpos : endbrackpos+2 ], "")
             return removed
-
-        if "+[" in spkridOrBracketStuff:
+        elif "+[" in spkridOrBracketStuff:
             removed = line.replace ( line[ bgnbrackpos-1 : endbrackpos+2 ], " ")
             return removed
+        elif "[" in spkridOrBracketStuff:
+            return None
+        elif "<NA>" in spkridOrBracketStuff:
+            print("<NA> found as speaker in {}".format(audiofilename))
         else:
             return line
 
@@ -149,7 +154,6 @@ def trim_srt(gecko_srt, srt_folder, rttm_lines, os):
     print("The file {} has been trimmed of non-speech segments".format(base))
 
 # Removes []+number stuff and number+[] stuff
-# TODO: remove segments which are only [] stuff
 def trim_rttm(gecko_rttm, rttm_folder, os):
     base = os.path.basename(gecko_rttm)
     contents = ""

@@ -115,15 +115,16 @@ if [ $stage -le 3 ]; then
   # file
 
   # RTTM
-  # TODO: remove segments which are only [] stuff
-  # TODO: in rttm files, spot segments which are missing speaker ids
-  # TODO: in rttm files identify 1.[noise], + and crosstalk and deal with them
+  # TODO: in rttm files identify 1.[noise], + (return as tuple?) and crosstalk
+  # and deal with them
   # TODO: identify segments/files which have something other than
   # [0-9]+\(\+\[[a-z]+\]\) or a plain number, a num+[tag], [tag]+num and output
   # the filename
 
   # Convert second column of rttm file to the audio filename
   # Removes [xxx] within rttm segments with X+[xxx]
+  # Remove segments which are only [] stuff
+  # In rttm files, log files with segments with <NA> as speaker id
   echo "Rename rttm, srt, and json files"
   echo "Create segments files in data/temp/segments."
   echo "The log file can be found at ${gecko_rttm_log}"
