@@ -103,6 +103,9 @@ if [ $stage -le 2 ]; then
 fi
 
 if [ $stage -le 3 ]; then
+  gecko_rttm_log=gecko_rttm2rttm.log
+  touch $gecko_rttm_log
+
   # SEGMENTS
   # TODO: check if srt segments really do correspond exactly to rttm segments
   # (check by walking through a file or using gecko and rttm file)
@@ -119,11 +122,12 @@ if [ $stage -le 3 ]; then
   # [0-9]+\(\+\[[a-z]+\]\) or a plain number, a num+[tag], [tag]+num and output
   # the filename
 
-  # Renames rttm, srt, and json corresponding files if they exist
   # Convert second column of rttm file to the audio filename
   # Removes [xxx] within rttm segments with X+[xxx]
-  # Creates segments files in data/temp/segments
-  python3 scripts/gecko_rttm2rttm.py > gecko_rttm2rttm.log
+  echo "Rename rttm, srt, and json files"
+  echo "Create segments files in data/temp/segments."
+  echo "The log file can be found at ${gecko_rttm_log}"
+  python3 scripts/gecko_rttm2rttm.py > $gecko_rttm_log
   exit 0
 fi
 
@@ -154,11 +158,8 @@ if [ $stage -le 4 ]; then
 fi
 
 if [ $stage -le 5 ]; then
-  # TODO: gecko_rtt2rttm.log
-  touch gecko_rttm2rttm.log
-
   # Adds the date to the readme file
-  date | cat - gecko_rttm2rttm.log > temp && mv temp gecko_rttm2rttm.log
+  date | cat - $gecko_rttm_log > temp && mv temp $gecko_rttm_log
   # TODO: TEST Create the statistics and update the readme
   python3 scripts/gecko_rttm2rttm.py --only_csv 'True' \
     --create_csv $combined_csv
