@@ -106,24 +106,17 @@ if [ $stage -le 3 ]; then
   gecko_rttm_log=gecko_rttm2rttm.log
   touch $gecko_rttm_log
 
-  # SEGMENTS
   # TODO: check if srt segments really do correspond exactly to rttm segments
   # (check by walking through a file or using gecko and rttm file)
-  # TODO: check if the correct segment is removed even if there are 2 segments
-  # in the rttm file for one segment in the srt file
-  # TODO: test if this is done correctly: Removes non speech segments from srt
-  # file
-
   # RTTM
   # TODO: in rttm files identify 1.[noise], + (return as tuple?) and crosstalk
   # and deal with them
-  # TODO: identify segments/files which have something other than
-  # [0-9]+\(\+\[[a-z]+\]\) or a plain number, a num+[tag], [tag]+num and output
-  # the filename
+  # TODO: identify files which have something other than a plain number,
+  # num+[tag], or [tag]+num and log the filename
 
   # Convert second column of rttm file to the audio filename
   # Removes [xxx] within rttm segments with X+[xxx]
-  # Remove segments which are only [] stuff
+  # Remove srt and rttm segments which are only [] stuff
   # In rttm files, log files with segments with <NA> as speaker id
   echo "Rename rttm, srt, and json files"
   echo "Create segments files in data/temp/segments."

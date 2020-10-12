@@ -64,7 +64,7 @@ Do not commit any files or information that is specific to this corpus, e.g. nam
 
 ## Tasks
 - [x] 1. Add audio filenames to rttm files, as the second field. See [the template file in kaldi-speaker-diarization/master/templates.md](https://github.com/cadia-lvl/kaldi-speaker-diarization/blob/master/templates.md) for an example. DO NOT put angle brackets arounnd the recording-id/audio filenames.
-- [ ] 2. Remove [] stuff (foreign, noise, music) from rttm files and srt segments. For rttm file that means remove the line or remove the [] portion of a line with speaker-ids as [foreign]+15. For srt segments that means only remove the segments which don't have any speech.
+- [x] 2. Remove [] stuff (foreign, noise, music) from rttm files and srt segments. For rttm file that means remove the line or remove the [] portion of a line with speaker-ids as [foreign]+15. For srt segments that means only remove the segments which don't have any speech.
 - [x] 3. Rename the rttm/json/srt files themselves to just the audio filename.
 - [x] 4. Also include the command to call [create_segments_and_text.py](https://github.com/cadia-lvl/broadcast_data_prep/blob/master/ruv/create_segments_and_text.py). It might be difficult due to where the resulting files are created. If so, then will need to generalize the python file. Do this and create a pull-request.
 - [ ] 5. Generate text file with the updated corpus numbers in the corpus readme. If know how to, then also autoreplaces the values in the readme.

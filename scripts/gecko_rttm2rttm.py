@@ -60,8 +60,8 @@ def is_speech_rttm(srt_line, rttm_lines):
             rttm_spkr = rttm_line.split()[7]
             if( Decimal(rttm_bgn_tm) >= srt_range[0] and Decimal(rttm_bgn_tm) < Decimal(str(srt_range[1])) ):
                 if(rttm_spkr.isnumeric()):
-                    return False
-    return True
+                    return True
+    return False
 # Returns the timestamps in seconds to compare the srt file to the rttm file to
 # remove the correct segments with no speech in it.
 def tmstmp_scnds(line):
@@ -131,10 +131,9 @@ def checkArguments(args):
         exit(0)
 
 # Trims the srt file - removes segments that don't have any speech
-# TODO: srt segments should also be renumbered so there are no gaps in
-# numberings
-# TODO: check if the correct segment is removed even if there are 2 segments in
-# the rttm file for one segment in the srt file
+# Renumbers srt segments
+# The correct segment is removed even if there are 2 segments in the rttm file
+# for one segment in the srt file
 def trim_srt(gecko_srt, srt_folder, rttm_lines, os):
     base = os.path.basename(gecko_srt)
     segment_id = 0
@@ -143,11 +142,9 @@ def trim_srt(gecko_srt, srt_folder, rttm_lines, os):
         os.mkdir(srt_folder)
     with open(srt_folder+gecko_srt, 'r') as gecko_srt_file:
         for line in gecko_srt_file:
-                # For the segment id
-                if(line.rstrip().isalnum()):
+                if is_speech_rttm(line, rttm_lines):
                     segment_id = segment_id + 1
-                if not is_speech_rttm(line, rttm_lines):
-                    segment = segment + str(segment_id) + "\n" + line + "\n"
+                    segment = segment + str(segment_id) + "\n" + line + "<NA>\n\n"
 
     with open(srt_folder+gecko_srt, 'w') as srt_file:
         print(segment, end='\n', file=srt_file)
@@ -284,9 +281,6 @@ def update_ruv_di_readme(ruv_di_readme, statistics_indicator, csv_info_file):
 def create_segments(os):
     srt_folder = 'data/temp/srt/'
     srt_files = os.listdir(srt_folder)
-    # TODO: segment files should be in srt_folder and without the episode
-    # folder. Currently they're created in data/segments
-
     for filename in srt_files:
         create_segm_and_text("{}/{}".format(srt_folder, filename), 'data/temp')
 
@@ -301,7 +295,6 @@ def main():
     rttm_files = sorted(os.listdir(rttm_folder))
 
     # Taking usage of the fact there is a rttm file for each srt file
-    # TODO: check if srt segments really do correspond exactly to rttm segments
     for filename_enum in enumerate(rttm_files):
         line_number = filename_enum[0]
         rttm_file = filename_enum[1]
