@@ -106,8 +106,6 @@ if [ $stage -le 3 ]; then
   gecko_rttm_log=gecko_rttm2rttm.log
   touch $gecko_rttm_log
 
-  # TODO: check if srt segments really do correspond exactly to rttm segments
-  # (check by walking through a file or using gecko and rttm file)
   # RTTM
   # TODO: in rttm files identify 1.[noise], + (return as tuple?) and crosstalk
   # and deal with them

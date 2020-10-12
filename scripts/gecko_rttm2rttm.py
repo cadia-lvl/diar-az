@@ -33,8 +33,10 @@ def rm_brckts_spker_rttm(line, audiofilename):
             return None
         elif "<NA>" in spkridOrBracketStuff:
             print("<NA> found as speaker in {}".format(audiofilename))
-        else:
+        elif spkridOrBracketStuff.isnumeric():
             return line
+        else:
+            print("{} found as speaker in {}".format(spkridOrBracketStuff, audiofilename))
 
 # Convert timestamps to seconds and partial seconds ss.ff
 def cnvrt_hh_mm_sec(hh_mm_ss):
@@ -83,7 +85,6 @@ def get_audio_filename(filename, os):
     base = os.path.basename(filename)
     (filename, ext) = os.path.splitext(base)
     if ("_" in filename and "-" in filename):
-        print(filename)
         audiofilename = filename.split("_")[0].split("-")[1]
         return audiofilename+ext
     elif ("-" in filename):
