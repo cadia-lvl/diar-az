@@ -5,7 +5,6 @@
 #
 #SBATCH --output=logs/create_corpus_%J.log
 #SBATCH --nodelist=terra
-# TODO: change references to temp to corpus
 
 
 set -eu -o pipefail
@@ -31,7 +30,7 @@ data=data
 recording_list=$data/episode_list.txt
 combined_csv=$data/reco2spk_num2spk_name.csv
 
-stage=2
+stage=0
 
 mkdir -p $data/gecko/.backup
 
@@ -93,6 +92,11 @@ if [ $stage -le 1 ]; then
 fi
 
 if [ $stage -le 2 ]; then
+  # Remove any existing temp files
+  if [ -d $data/temp ]; then
+    rm -rf $data/temp
+  fi
+
   mkdir -p $data/corpus/json
   mkdir -p $data/temp/{rttm,srt,text,segments,json,csv}
 
@@ -106,21 +110,19 @@ if [ $stage -le 3 ]; then
   gecko_rttm_log=gecko_rttm2rttm.log
   touch $gecko_rttm_log
 
-  # RTTM
   # TODO: in rttm files identify 1.[noise], + (return as tuple?) and crosstalk
   # and deal with them
-  # TODO: identify files which have something other than a plain number,
-  # num+[tag], or [tag]+num and log the filename
 
   # Convert second column of rttm file to the audio filename
   # Removes [xxx] within rttm segments with X+[xxx]
   # Remove srt and rttm segments which are only [] stuff
   # In rttm files, log files with segments with <NA> as speaker id
+  # Identify rttm files which have something other than a plain number,
+  # num+[tag], or [tag]+num and log the filename
   echo "Rename rttm, srt, and json files"
   echo "Create segments files in data/temp/segments."
   echo "The log file can be found at ${gecko_rttm_log}"
   python3 scripts/gecko_rttm2rttm.py > $gecko_rttm_log
-  exit 0
 fi
 
 if [ $stage -le 4 ]; then
@@ -142,25 +144,24 @@ if [ $stage -le 4 ]; then
   # remove empty lines, with or without spaces
   # remove trailing commas
   sed -i -e '/,,/d' -e '/^ *$/d' -e 's/,$//' $combined_csv
-
-  # Only correct spelling errors and create the csv files
-  python3 scripts/gecko_rttm2rttm.py --only_csv 'True' \
-    --create_csv $combined_csv --statistics_off 'True' \
-    --update_ruv_di_readme_off 'True'
 fi
 
 if [ $stage -le 5 ]; then
   # Adds the date to the readme file
   date | cat - $gecko_rttm_log > temp && mv temp $gecko_rttm_log
-  # TODO: TEST Create the statistics and update the readme
+  # Correct spelling errors and create the csv files
+  # Create the statistics and update the readme
+  # NOTE: This is interactive unless you use --correct_spelling False directly
+  # on scripts/csv2spkids.py
   python3 scripts/gecko_rttm2rttm.py --only_csv 'True' \
     --create_csv $combined_csv
 fi
 
 if [ $stage -le 6 ]; then
-  exit 0
-  # TODO: Copy temp_dir segments,json,rttm directories to corpus then delete
-  # temp_dir
+  # Copy temp_dir segments,json,rttm directories to corpus then delete temp_dir
+  for x in rttm segments json csv; do
+    cp -r $data/temp/$x $data/corpus/
+  done
   cp $audio_directory/* $data/corpus/wav
   rm -rf $data/temp
 fi

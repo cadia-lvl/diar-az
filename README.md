@@ -85,7 +85,7 @@ If have kaldi setup the run local/make_ruvdi.sh, fix_data_dir & utils/validate_d
 
 ## TODO
 - [ ] in rttm files identify spk_ids like 1.[noise], + and crosstalk
-- [ ] preserve existing spk_labels
+- [ ] preserve existing speaker labels
 
 ## License
 This project is licensed under [Apache 2.0](License).
