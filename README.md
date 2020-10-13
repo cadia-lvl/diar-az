@@ -53,6 +53,9 @@ to see the filenames
 
 `find data/ -maxdepth 3 -iname *4882718R8*`
 
+- Use `sort -k3,3 -t, filename.csv` to look for longer name mistakes
+- Use `sort -k3,3 -u -t, filename.csv` if you only want one occurance of each name
+
 ## Notes
 Everything but the people name validation should be done by calling just one script. This script can call other scripts but the user should only have to call one. So possibly two scripts.
 
@@ -64,10 +67,10 @@ Do not commit any files or information that is specific to this corpus, e.g. nam
 
 ## Tasks
 - [x] 1. Add audio filenames to rttm files, as the second field. See [the template file in kaldi-speaker-diarization/master/templates.md](https://github.com/cadia-lvl/kaldi-speaker-diarization/blob/master/templates.md) for an example. DO NOT put angle brackets arounnd the recording-id/audio filenames.
-- [ ] 2. Remove [] stuff (foreign, noise, music) from rttm files and srt segments. For rttm file that means remove the line or remove the [] portion of a line with speaker-ids as [foreign]+15. For srt segments that means only remove the segments which don't have any speech.
+- [x] 2. Remove [] stuff (foreign, noise, music) from rttm files and srt segments. For rttm file that means remove the line or remove the [] portion of a line with speaker-ids as [foreign]+15. For srt segments that means only remove the segments which don't have any speech.
 - [x] 3. Rename the rttm/json/srt files themselves to just the audio filename.
-- [ ] 4. Also include the command to call [create_segments_and_text.py](https://github.com/cadia-lvl/broadcast_data_prep/blob/master/ruv/create_segments_and_text.py). It might be difficult due to where the resulting files are created. If so, then will need to generalize the python file. Do this and create a pull-request.
-- [ ] 5. Generate text file with the updated corpus numbers in the corpus readme. If know how to, then also autoreplaces the values in the readme.
+- [x] 4. Also include the command to call [create_segments_and_text.py](https://github.com/cadia-lvl/broadcast_data_prep/blob/master/ruv/create_segments_and_text.py). It might be difficult due to where the resulting files are created. If so, then will need to generalize the python file. Do this and create a pull-request.
+- [x] 5. Generate text file with the updated corpus numbers in the corpus readme. If know how to, then also autoreplaces the values in the readme.
 - [X] 6. Create a csv file like in the corpus`<audio-filename>,<spk-num>,<speaker label>`. This involves pairing up all the written names across files then creating new speaker labels for speakers. This needs to be done with unknowns too but they also need to be renamed to the next numbered unknown available.
 - [X] 7. Also create `<audio-filename>,<spk-num>,<speaker name>,<speaker label>`
 - [X] 8. Allow there to be 1-3 spelling mistakes in the names which will then be manually validated and corrected.
@@ -81,11 +84,8 @@ If have kaldi setup the run local/make_ruvdi.sh, fix_data_dir & utils/validate_d
 - [ ] 4. Create a script which creates new segments based on 2-6 speaker turns which looks like the current corpus but with those new audio files.
 
 ## TODO
-- in rttm files identify 1.[noise], + and crosstalk
-- in rttm files, spot segments which are missing speaker ids
-- Use `sort -k3,3 -t, filename.csv` to look for longer name mistakes
-- Use `sort -k3,3 -u -t, filename.csv` if you only want one occurance of each name
-- preserve existing spk_labels
+- [ ] in rttm files identify spk_ids like 1.[noise], + and crosstalk
+- [ ] preserve existing speaker labels
 
 ## License
 This project is licensed under [Apache 2.0](License).
