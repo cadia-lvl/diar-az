@@ -82,7 +82,6 @@ If have kaldi setup the run local/make_ruvdi.sh, fix_data_dir & utils/validate_d
 
 ## TODO
 - in rttm files identify 1.[noise], + and crosstalk
-- in rttm files, spot segments which are missing speaker ids
 - Use `sort -k3,3 -t, filename.csv` to look for longer name mistakes
 - Use `sort -k3,3 -u -t, filename.csv` if you only want one occurance of each name
 - preserve existing spk_labels

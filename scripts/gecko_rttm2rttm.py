@@ -16,6 +16,7 @@ from create_segments_and_text import create_segm_and_text
 # Removes [something]+number (speaker number) and number+[something] - rttm files
 # Remove segments which are only [] stuff
 # Identify segments which have no speaker label
+# Identify files which have non-numeric speaker ids
 def rm_brckts_spker_rttm(line, audiofilename):
 
     if(line != '\n'):
@@ -219,7 +220,7 @@ def statistics_string(total_speakers, total_time, ided_speakers, unknown_speaker
     statistics = "\n----------\n"
     statistics_lines = None
     total_mins = round( (Decimal(total_time / 60 )), 3)
-    hours = round(total_mins / 60)
+    hours = total_mins // 60
     minutes = round(total_mins - (60*hours))
     statistics = statistics + "{} minutes ({} hrs {} mins) of speech\n{} ided speakers\n".format(total_mins, hours, minutes, ided_speakers)
     statistics = statistics + "{} unknown speakers\n".format(unknown_speakers)
