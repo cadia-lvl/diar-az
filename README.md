@@ -84,8 +84,9 @@ If have kaldi setup the run local/make_ruvdi.sh, fix_data_dir & utils/validate_d
 - [ ] 4. Create a script which creates new segments based on 2-6 speaker turns which looks like the current corpus but with those new audio files.
 
 ## TODO
-- [ ] in rttm files identify spk_ids like 1.[noise], + and crosstalk
+- [ ] in rttm files identify spk_ids like 001 Jane Doe, 1.[noise], + and crosstalk
 - [ ] preserve existing speaker labels
+- [ ] check for rttm files with non specified channel numbers
 
 ## License
 This project is licensed under [Apache 2.0](License).
