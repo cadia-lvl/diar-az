@@ -123,6 +123,11 @@ if [ $stage -le 3 ]; then
   echo "Create segments files in data/temp/segments."
   echo "The log file can be found at ${gecko_rttm_log}"
   python3 scripts/gecko_rttm2rttm.py > $gecko_rttm_log
+
+  # Remove empty lines from rttm files
+  for f in $data/temp/rttm/*.rttm; do
+    sed -i '/^ *$//d' "$f"
+  done
 fi
 
 if [ $stage -le 4 ]; then
@@ -159,7 +164,7 @@ fi
 
 if [ $stage -le 6 ]; then
   # Copy temp_dir segments,json,rttm directories to corpus then delete temp_dir
-  for x in rttm segments json csv; do
+  for x in rttm segments json; do
     cp -r $data/temp/$x $data/corpus/
   done
   cp $audio_directory/* $data/corpus/wav
