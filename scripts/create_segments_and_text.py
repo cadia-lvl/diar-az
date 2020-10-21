@@ -61,39 +61,39 @@ def create_segm_and_text(subtitle_filename, outdir):
         Path(segmentsdir).mkdir(parents=True, exist_ok=True)
         Path(textdir).mkdir(parents=True, exist_ok=True)
 
-    with open(subtitle_filename, "r") as fin, open(
-        segmentsdir + "/" + filename + ".segments", "w"
-    ) as fseg, open(textdir + "/" + filename + ".text", "w") as ftext:
-        if ext == ".vtt":
-            # skip header(first two) lines in file
-            next(fin)
-            next(fin)
-        groups = groupby(fin, str.isspace)
-        count = 0
-        for (_, *rest) in (map(str.strip, v) for g, v in groups if not g):
-            # write to text file
-            # better to create individual speaker ids per episode or shows,
-            # more speaker ids, because a global one would create problems for
-            # cepstral mean normalization ineffective in training
-            string = " ".join([*rest[1:]])
-            ftext.write(f"{filename}_{count:05d} {string}\n")
+        with open(subtitle_filename, "r") as fin, open(
+            segmentsdir + "/" + filename + ".segments", "w"
+        ) as fseg, open(textdir + "/" + filename + ".text", "w") as ftext:
             if ext == ".vtt":
-                start_time, _, end_time, _ = (str(*rest[:1])).split(" ", 3)
-            elif ext == ".srt":
-                start_time, _, end_time = (str(*rest[:1])).split(" ", 2)
-            else:
-                print(
-                    "The file was not recognized as a subtitle file(\
-                        .vtt or .srt)."
+                # skip header(first two) lines in file
+                next(fin)
+                next(fin)
+            groups = groupby(fin, str.isspace)
+            count = 0
+            for (_, *rest) in (map(str.strip, v) for g, v in groups if not g):
+                # write to text file
+                # better to create individual speaker ids per episode or shows,
+                # more speaker ids, because a global one would create problems for
+                # cepstral mean normalization ineffective in training
+                string = " ".join([*rest[1:]])
+                ftext.write(f"{filename}_{count:05d} {string}\n")
+                if ext == ".vtt":
+                    start_time, _, end_time, _ = (str(*rest[:1])).split(" ", 3)
+                elif ext == ".srt":
+                    start_time, _, end_time = (str(*rest[:1])).split(" ", 2)
+                else:
+                    print(
+                        "The file was not recognized as a subtitle file(\
+                            .vtt or .srt)."
+                    )
+                    exit(1)
+                start_seconds = time_in_seconds(start_time)
+                end_seconds = time_in_seconds(end_time)
+                # write to segments file
+                fseg.write(
+                    f"{filename}_{count:05d} {filename} {start_seconds} {end_seconds}\n"
                 )
-                exit(1)
-            start_seconds = time_in_seconds(start_time)
-            end_seconds = time_in_seconds(end_time)
-            # write to segments file
-            fseg.write(
-                f"{filename}_{count:05d} {filename} {start_seconds} {end_seconds}\n"
-            )
-            count = count + 1
+                count = count + 1
 
 
 def main():
