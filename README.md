@@ -9,6 +9,8 @@ Csv file creation was added to [Gecko](https://github.com/judyfong/gecko/pull/1)
 
 It is assumed that the corpus data will exist within the data directory specified at the top of the [create_corpus](create_corpus.sh) bash script.
 
+This repository is listed under the other software section in the [Awesome Diarization repository](https://github.com/wq2012/awesome-diarization) that contains list of awesome Speaker Diarization papers, libraries, datasets and more.
+
 ## Background
 
 The corpus has the following format:
