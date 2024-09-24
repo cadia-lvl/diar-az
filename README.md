@@ -9,6 +9,8 @@ Csv file creation was added to [Gecko](https://github.com/judyfong/gecko/pull/1)
 
 It is assumed that the corpus data will exist within the data directory specified at the top of the [create_corpus](create_corpus.sh) bash script.
 
+First data formatting tool supporting RUV-DI in [Awesome Diarization](https://github.com/wq2012/awesome-diarization). See [PR](https://github.com/wq2012/awesome-diarization/pull/39).
+
 ## Background
 
 The corpus has the following format:
